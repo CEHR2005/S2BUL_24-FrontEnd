@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { statisticsService } from '../../services/StatisticsService';
-import { MovieStatistics } from '../../models/Statistics';
+import { statisticsService } from '../../services';
+import { MovieStatistics } from '../../models';
 
 interface StatisticsPanelProps {
   movieId: string;

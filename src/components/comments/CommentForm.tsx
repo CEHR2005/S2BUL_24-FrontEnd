@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { commentService } from '../../services/CommentService';
-import { userService } from '../../services/UserService';
+import { commentService } from '../../services';
+import { userService } from '../../services';
 
 interface CommentFormProps {
   movieId: string;

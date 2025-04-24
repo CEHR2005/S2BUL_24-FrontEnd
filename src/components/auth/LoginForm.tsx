@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { userService } from '../../services/UserService';
-import { LoginUserDto } from '../../models/User';
+import { userService } from '../../services';
+import { LoginUserDto } from '../../models';
 
 interface LoginFormProps {
   onSuccess?: () => void;

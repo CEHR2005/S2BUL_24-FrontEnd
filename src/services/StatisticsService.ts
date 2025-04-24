@@ -4,8 +4,8 @@ import {
   GenderStatistics, 
   ContinentStatistics, 
   CountryStatistics 
-} from '../models/Statistics';
-import { RatingWithUser } from '../models/Rating';
+} from '../models';
+import { RatingWithUser } from '../models';
 import { ratingService } from './RatingService';
 
 /**

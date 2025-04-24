@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { CommentWithUser } from '../../models/Comment';
-import { commentService } from '../../services/CommentService';
+import { CommentWithUser } from '../../models';
+import { commentService } from '../../services';
 import { CommentItem } from './CommentItem';
 import { CommentForm } from './CommentForm';
 

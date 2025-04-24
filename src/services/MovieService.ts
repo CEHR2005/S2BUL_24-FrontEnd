@@ -1,4 +1,4 @@
-import { Movie, CreateMovieDto, UpdateMovieDto } from '../models/Movie';
+import { Movie, CreateMovieDto, UpdateMovieDto } from '../models';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

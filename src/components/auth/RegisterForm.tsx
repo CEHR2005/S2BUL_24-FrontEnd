@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { userService } from '../../services/UserService';
-import { RegisterUserDto } from '../../models/User';
+import { userService } from '../../services';
+import { RegisterUserDto } from '../../models';
 
 interface RegisterFormProps {
   onSuccess: () => void;

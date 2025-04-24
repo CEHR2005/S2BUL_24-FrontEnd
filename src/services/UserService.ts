@@ -1,4 +1,4 @@
-import { User, RegisterUserDto, LoginUserDto, UpdateUserDto, SafeUser } from '../models/User';
+import { User, RegisterUserDto, LoginUserDto, UpdateUserDto, SafeUser } from '../models';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

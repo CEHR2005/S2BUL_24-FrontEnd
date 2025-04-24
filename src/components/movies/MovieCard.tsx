@@ -1,5 +1,5 @@
-import { Movie } from '../../models/Movie';
-import { ratingService } from '../../services/RatingService';
+import { Movie } from '../../models';
+import { ratingService } from '../../services';
 
 interface MovieCardProps {
   movie: Movie;

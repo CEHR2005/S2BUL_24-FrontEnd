@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Movie, CreateMovieDto, UpdateMovieDto } from '../../models/Movie';
-import { movieService } from '../../services/MovieService';
+import { Movie, CreateMovieDto, UpdateMovieDto } from '../../models';
+import { movieService } from '../../services';
 
 interface MovieFormProps {
   movieId?: string;

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Movie } from '../../models/Movie';
-import { movieService } from '../../services/MovieService';
-import { ratingService } from '../../services/RatingService';
-import { CommentList } from '../comments/CommentList';
-import { RatingForm } from '../ratings/RatingForm';
-import { StatisticsPanel } from '../statistics/StatisticsPanel';
-import { userService } from '../../services/UserService';
+import { Movie } from '../../models';
+import { movieService } from '../../services';
+import { ratingService } from '../../services';
+import { CommentList } from '../comments';
+import { RatingForm } from '../ratings';
+import { StatisticsPanel } from '../statistics';
+import { userService } from '../../services';
 
 interface MovieDetailProps {
   movieId: string;

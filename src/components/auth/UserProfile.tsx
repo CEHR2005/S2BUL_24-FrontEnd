@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { userService } from '../../services/UserService';
-import { SafeUser, UpdateUserDto } from '../../models/User';
+import { userService } from '../../services';
+import { SafeUser, UpdateUserDto } from '../../models';
 
 interface UserProfileProps {
   onSuccess?: () => void | Promise<void>;

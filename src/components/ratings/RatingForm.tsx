@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ratingService } from '../../services/RatingService';
-import { userService } from '../../services/UserService';
+import { ratingService } from '../../services';
+import { userService } from '../../services';
 import { RatingStars } from './RatingStars';
 
 interface RatingFormProps {

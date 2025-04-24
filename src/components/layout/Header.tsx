@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { userService } from '../../services/UserService';
-import { SafeUser } from '../../models/User';
+import { userService } from '../../services';
+import { SafeUser } from '../../models';
 
 /**
  * Header component with navigation and user authentication

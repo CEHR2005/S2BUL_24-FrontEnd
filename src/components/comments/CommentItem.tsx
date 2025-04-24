@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { CommentWithUser } from '../../models/Comment';
-import { commentService } from '../../services/CommentService';
-import { userService } from '../../services/UserService';
+import { CommentWithUser } from '../../models';
+import { commentService } from '../../services';
+import { userService } from '../../services';
 
 interface CommentItemProps {
   comment: CommentWithUser;
