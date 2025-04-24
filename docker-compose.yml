@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:5173
+      - VITE_DB_HOST=postgres
+      - VITE_DB_PORT=5432
+      - VITE_DB_NAME=testdb
+      - VITE_DB_USER=postgres
+      - VITE_DB_PASSWORD=postgres
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - postgres
+    # Add --host to allow connections from outside the container
+    command: npm run dev -- --host
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=testdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
