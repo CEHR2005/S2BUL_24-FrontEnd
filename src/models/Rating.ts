@@ -20,8 +20,8 @@ export type CreateRatingDto = Pick<Rating, 'movie_id' | 'score'>;
  */
 export interface MovieRating {
   movie_id: string;
-  averageScore: number;
-  totalRatings: number;
+  average_score: number;
+  total_ratings: number;
 }
 
 /**

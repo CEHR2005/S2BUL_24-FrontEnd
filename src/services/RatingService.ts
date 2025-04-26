@@ -16,8 +16,8 @@ export class RatingService {
       // If there's an error or no ratings, return a default rating
       return {
         movie_id: movieId,
-        averageScore: 0,
-        totalRatings: 0
+        average_score: 0,
+        total_ratings: 0
       };
     }
   }

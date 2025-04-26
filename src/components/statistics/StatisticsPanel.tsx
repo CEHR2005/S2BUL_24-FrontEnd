@@ -37,15 +37,16 @@ export const StatisticsPanel = ({ movieId }: StatisticsPanelProps) => {
     return <div className="text-center py-10 text-gray-500">No statistics available for this movie.</div>;
   }
 
-  const renderChart = (data: Record<string, number>, title: string) => {
-    const total = Object.values(data).reduce((sum, value) => sum + value, 0);
+  const renderChart = (data: Record<string, number> | undefined | null, title: string) => {
+    // Add null/undefined check before using Object.values
+    const total = data ? Object.values(data).reduce((sum, value) => sum + value, 0) : 0;
 
     return (
       <div className="mt-4">
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
         {total > 0 ? (
           <div className="space-y-3">
-            {Object.entries(data).map(([key, value]) => {
+            {Object.entries(data || {}).map(([key, value]) => {
               const percentage = (value / total) * 100;
               return (
                 <div key={key} className="relative">
@@ -119,19 +120,20 @@ export const StatisticsPanel = ({ movieId }: StatisticsPanelProps) => {
       </div>
 
       {/* Render the appropriate statistics based on the active tab */}
-      {activeTab === 'age' && renderChart(statistics.ageStatistics, 'Distribution by Age Group')}
-      {activeTab === 'gender' && renderChart(statistics.genderStatistics, 'Distribution by Gender')}
-      {activeTab === 'continent' && renderChart(statistics.continentStatistics, 'Distribution by Continent')}
-      {activeTab === 'country' && renderChart(statistics.countryStatistics, 'Distribution by Country')}
+      {activeTab === 'age' && renderChart(statistics.age_statistics || statistics.age_statistics, 'Distribution by Age Group')}
+      {activeTab === 'gender' && renderChart(statistics.gender_statistics || statistics.gender_statistics, 'Distribution by Gender')}
+      {activeTab === 'continent' && renderChart(statistics.continent_statistics || statistics.continent_statistics, 'Distribution by Continent')}
+      {activeTab === 'country' && renderChart(statistics.country_statistics || statistics.country_statistics, 'Distribution by Country')}
 
       <div className="mt-6 p-4 bg-gray-50 rounded-lg">
         <h3 className="text-lg font-semibold mb-2">Summary</h3>
         <p className="text-gray-700">
-          This movie has been rated by users from {Object.keys(statistics.countryStatistics).length} countries 
-          across {Object.keys(statistics.continentStatistics).filter(key => statistics.continentStatistics[key] > 0).length} continents. 
+          This movie has been rated by users from {Object.keys(statistics.country_statistics || statistics.country_statistics || {}).length} countries
+          across {Object.keys((statistics.continent_statistics || statistics.continent_statistics || {})).filter(key => (statistics.continent_statistics || statistics.continent_statistics || {})[key] > 0).length} continents.
           {/* Calculate most common country */}
           {(() => {
-            const mostCommonCountry = Object.entries(statistics.countryStatistics)
+            const countryStats = statistics.country_statistics || statistics.country_statistics || {};
+            const mostCommonCountry = Object.entries(countryStats)
               .sort((a, b) => b[1] - a[1])
               .shift();
             return mostCommonCountry 
@@ -142,13 +144,14 @@ export const StatisticsPanel = ({ movieId }: StatisticsPanelProps) => {
         <p className="text-gray-700 mt-2">
           {/* Calculate highest average rating age group */}
           {(() => {
+            const ageStats = statistics.age_statistics || statistics.age_statistics || {};
             const ageGroups = {
-              'under 18': statistics.ageStatistics.under18,
-              '18-24': statistics.ageStatistics.age18to24,
-              '25-34': statistics.ageStatistics.age25to34,
-              '35-44': statistics.ageStatistics.age35to44,
-              '45-54': statistics.ageStatistics.age45to54,
-              '55+': statistics.ageStatistics.age55plus
+              'under 18': ageStats.under18 || ageStats.under_18 || 0,
+              '18-24': ageStats.age18to24 || ageStats.age_18_to_24 || 0,
+              '25-34': ageStats.age25to34 || ageStats.age_25_to_34 || 0,
+              '35-44': ageStats.age35to44 || ageStats.age_35_to_44 || 0,
+              '45-54': ageStats.age45to54 || ageStats.age_45_to_54 || 0,
+              '55+': ageStats.age55plus || ageStats.age_55_plus || 0
             };
 
             const highestAgeGroup = Object.entries(ageGroups)

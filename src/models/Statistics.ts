@@ -48,10 +48,10 @@ export interface CountryStatistics {
  */
 export interface MovieStatistics {
   movie_id: string;
-  averageRating: number;
-  totalRatings: number;
-  ageStatistics: AgeStatistics;
-  genderStatistics: GenderStatistics;
-  continentStatistics: ContinentStatistics;
-  countryStatistics: CountryStatistics;
+  average_rating  : number;
+  total_ratings: number;
+  age_statistics: AgeStatistics;
+  gender_statistics: GenderStatistics;
+  continent_statistics: ContinentStatistics;
+  country_statistics: CountryStatistics;
 }
