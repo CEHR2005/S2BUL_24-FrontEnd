@@ -4,10 +4,10 @@
 export interface Rating {
   id: string;
   movie_id: string;
-  userId: string;
+  user_id: string;
   score: number; // 1-10 rating scale
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**

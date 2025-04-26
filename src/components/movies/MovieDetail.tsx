@@ -114,7 +114,7 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
           {/* Movie Details */}
           <div className="p-6 md:w-2/3">
             <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
-            <p className="text-gray-600 mb-4">{movie.releaseYear} • {movie.duration} min</p>
+            <p className="text-gray-600 mb-4">{movie.release_year} • {movie.duration} min</p>
 
             <div className="flex items-center mb-4">
               <div className="flex items-center">

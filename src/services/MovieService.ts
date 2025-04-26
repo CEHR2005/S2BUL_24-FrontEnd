@@ -22,10 +22,10 @@ export class MovieService {
    */
   private transformMovieToApi(movie: Partial<Movie>): any {
     // Convert from camelCase to snake_case for releaseYear
-    const { releaseYear, ...rest } = movie;
+    const { release_year, ...rest } = movie;
     return {
       ...rest,
-      release_year: releaseYear,
+      release_year: release_year,
     };
   }
   /**

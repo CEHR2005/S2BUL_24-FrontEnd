@@ -4,7 +4,7 @@
 export interface Movie {
   id: string;
   title: string;
-  releaseYear: number;
+  release_year: number;
   director: string;
   cast: string[];
   genre: string[];

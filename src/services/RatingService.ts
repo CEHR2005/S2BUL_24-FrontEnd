@@ -49,7 +49,7 @@ export class RatingService {
       }
 
       const ratings = await this.getRatingsByMovieId(movieId);
-      return ratings.find(rating => rating.userId === currentUser.id);
+      return ratings.find(rating => rating.user_id === currentUser.id);
     } catch (error) {
       console.error('Error getting user rating:', error);
       return undefined;

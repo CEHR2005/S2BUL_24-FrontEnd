@@ -51,7 +51,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
 
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-1">{movie.title}</h3>
-        <p className="text-sm text-gray-600 mb-2">{movie.releaseYear} • {movie.duration} min</p>
+        <p className="text-sm text-gray-600 mb-2">{movie.release_year} • {movie.duration} min</p>
 
         <div className="flex items-center mb-2">
           <div className="flex items-center">

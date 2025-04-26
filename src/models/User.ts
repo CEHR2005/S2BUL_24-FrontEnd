@@ -6,21 +6,21 @@ export interface User {
   username: string;
   email: string;
   password: string; // This would be hashed in a real application
-  firstName?: string;
-  lastName?: string;
+  first_name?: string;
+  last_name?: string;
   age?: number;
   gender?: 'male' | 'female' | 'other' | 'prefer not to say';
   country?: string;
   continent?: string;
   isAdmin: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**
  * Represents the data needed to register a new user
  */
-export type RegisterUserDto = Pick<User, 'username' | 'email' | 'password' | 'firstName' | 'lastName' | 'age' | 'gender' | 'country'>;
+export type RegisterUserDto = Pick<User, 'username' | 'email' | 'password' | 'first_name' | 'last_name' | 'age' | 'gender' | 'country'>;
 
 /**
  * Represents the data needed to login a user

@@ -64,8 +64,8 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
         username,
         email,
         password,
-        firstName: firstName || undefined,
-        lastName: lastName || undefined,
+        first_name: firstName || undefined,
+        last_name: lastName || undefined,
         age: age || undefined,
         gender: gender as any || undefined,
         country: country || undefined

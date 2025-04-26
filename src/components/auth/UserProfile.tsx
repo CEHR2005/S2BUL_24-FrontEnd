@@ -26,8 +26,8 @@ export const UserProfile = ({ onSuccess }: UserProfileProps) => {
     const authStateListener = (currentUser: SafeUser | null) => {
       if (currentUser) {
         setUser(currentUser);
-        setFirstName(currentUser.firstName || '');
-        setLastName(currentUser.lastName || '');
+        setFirstName(currentUser.first_name || '');
+        setLastName(currentUser.last_name || '');
         setAge(currentUser.age);
         setGender(currentUser.gender || '');
         setCountry(currentUser.country || '');
@@ -60,8 +60,8 @@ export const UserProfile = ({ onSuccess }: UserProfileProps) => {
 
     try {
       const updateData: UpdateUserDto = {
-        firstName: firstName || undefined,
-        lastName: lastName || undefined,
+        first_name: firstName || undefined,
+        last_name: lastName || undefined,
         age: age || undefined,
         gender: gender as any || undefined,
         country: country || undefined
@@ -256,12 +256,12 @@ export const UserProfile = ({ onSuccess }: UserProfileProps) => {
 
           <div>
             <h3 className="text-gray-500 font-medium mb-1">First Name</h3>
-            <p className="text-lg">{user.firstName || '-'}</p>
+            <p className="text-lg">{user.first_name || '-'}</p>
           </div>
 
           <div>
             <h3 className="text-gray-500 font-medium mb-1">Last Name</h3>
-            <p className="text-lg">{user.lastName || '-'}</p>
+            <p className="text-lg">{user.last_name || '-'}</p>
           </div>
 
           <div>

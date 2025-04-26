@@ -4,7 +4,7 @@
 export interface Comment {
   id: string;
   movie_id: string;
-  userId: string;
+  user_id: string;
   text: string;
   created_at: Date;
   updated_at: Date;

@@ -14,7 +14,7 @@ interface MovieFormProps {
  */
 export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormProps) => {
   const [title, setTitle] = useState('');
-  const [releaseYear, setReleaseYear] = useState<number>(new Date().getFullYear());
+  const [release_year, setReleaseYear] = useState<number>(new Date().getFullYear());
   const [director, setDirector] = useState('');
   const [cast, setCast] = useState<string[]>([]);
   const [castInput, setCastInput] = useState('');
@@ -34,7 +34,7 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
         try {
           const movie = await movieService.getMovieById(movieId);
           setTitle(movie.title);
-          setReleaseYear(movie.releaseYear);
+          setReleaseYear(movie.release_year);
           setDirector(movie.director);
           setCast(movie.cast);
           setGenre(movie.genre);
@@ -92,7 +92,7 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
 
     const movieData: CreateMovieDto = {
       title,
-      releaseYear,
+      release_year,
       director,
       cast,
       genre,
@@ -199,7 +199,7 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
           <input
             type="number"
             id="releaseYear"
-            value={releaseYear}
+            value={release_year}
             onChange={(e) => setReleaseYear(parseInt(e.target.value) || 0)}
             min="1900"
             max={new Date().getFullYear() + 5}
