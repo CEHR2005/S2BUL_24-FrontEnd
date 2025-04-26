@@ -40,7 +40,7 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
           setGenre(movie.genre);
           setPlot(movie.plot);
           setDuration(movie.duration);
-          setPosterUrl(movie.posterUrl || '');
+          setPosterUrl(movie.poster_url || '');
           setImages(movie.images || []);
         } catch (error) {
           console.error('Failed to load movie:', error);
@@ -98,7 +98,7 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
       genre,
       plot,
       duration,
-      posterUrl: posterUrl || undefined,
+      poster_url: posterUrl || undefined,
       images: images.length > 0 ? images : undefined
     };
 

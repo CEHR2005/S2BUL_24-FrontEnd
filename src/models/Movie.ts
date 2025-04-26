@@ -10,7 +10,7 @@ export interface Movie {
   genre: string[];
   plot: string;
   duration: number; // in minutes
-  posterUrl?: string;
+  poster_url?: string;
   images?: string[];
   createdAt: Date;
   updatedAt: Date;

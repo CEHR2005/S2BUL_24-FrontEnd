@@ -24,33 +24,41 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
   });
   const isLoggedIn = !!userService.getCurrentUser();
 
-  useEffect(() => {
-    const fetchMovie = async () => {
-      try {
-        const foundMovie = await movieService.getMovieById(movieId);
-        setMovie(foundMovie);
-      } catch (error) {
-        console.error('Failed to load movie:', error);
-        setMovie(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Function to fetch movie data
+  const fetchMovie = async () => {
+    try {
+      const foundMovie = await movieService.getMovieById(movieId);
+      setMovie(foundMovie);
+    } catch (error) {
+      console.error('Failed to load movie:', error);
+      setMovie(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Fetch movie when component mounts or movieId changes
+  useEffect(() => {
     fetchMovie();
   }, [movieId]);
 
-  // Fetch movie rating
-  useEffect(() => {
-    const fetchRating = async () => {
-      try {
-        const movieRating = await ratingService.getMovieRating(movieId);
-        setRating(movieRating);
-      } catch (error) {
-        console.error('Failed to load movie rating:', error);
-      }
-    };
+  // Function to fetch movie rating
+  const fetchRating = async () => {
+    try {
+      const movieRating = await ratingService.getMovieRating(movieId);
+      setRating(movieRating);
+    } catch (error) {
+      console.error('Failed to load movie rating:', error);
+    }
+  };
 
+  // Function to refresh data when comments or ratings change
+  const refreshData = () => {
+    fetchRating();
+  };
+
+  // Fetch movie rating when component mounts or movieId changes
+  useEffect(() => {
     fetchRating();
   }, [movieId]);
 
@@ -90,9 +98,9 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
         <div className="md:flex">
           {/* Movie Poster */}
           <div className="md:w-1/3">
-            {movie.posterUrl ? (
+            {movie.poster_url ? (
               <img 
-                src={movie.posterUrl} 
+                src={movie.poster_url}
                 alt={`${movie.title} poster`} 
                 className="w-full h-auto object-cover"
               />
@@ -154,7 +162,7 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
             {isLoggedIn && (
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                 <h2 className="text-xl font-semibold mb-2">Rate this movie</h2>
-                <RatingForm movieId={movie.id} />
+                <RatingForm movieId={movie.id} onRatingChange={refreshData} />
               </div>
             )}
           </div>
@@ -187,7 +195,7 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
 
           <div className="p-6">
             {activeTab === 'comments' ? (
-              <CommentList movieId={movie.id} />
+              <CommentList movieId={movie.id} onCommentChange={refreshData} />
             ) : (
               <StatisticsPanel movieId={movie.id} />
             )}

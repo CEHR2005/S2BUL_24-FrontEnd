@@ -16,7 +16,7 @@ export const CommentForm = ({ movieId, onCommentAdded }: CommentFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const currentUser = userService.getCurrentUser();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!text.trim()) {
@@ -33,7 +33,7 @@ export const CommentForm = ({ movieId, onCommentAdded }: CommentFormProps) => {
     setError('');
 
     try {
-      commentService.createComment({
+      await commentService.createComment({
         movie_id: movieId,
         text: text.trim()
       });

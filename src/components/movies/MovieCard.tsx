@@ -37,9 +37,9 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
       className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
-      {movie.posterUrl ? (
+      {movie.poster_url ? (
         <img 
-          src={movie.posterUrl} 
+          src={movie.poster_url}
           alt={`${movie.title} poster`} 
           className="w-full h-48 object-cover"
         />

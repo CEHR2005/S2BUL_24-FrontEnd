@@ -16,13 +16,13 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
   const [editText, setEditText] = useState(comment.text);
   const [isDeleting, setIsDeleting] = useState(false);
   const currentUser = userService.getCurrentUser();
-  
+
   // Check if the current user is the author or an admin
   const canModify = currentUser && (
     currentUser.id === comment.userId || 
     currentUser.isAdmin
   );
-  
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -32,21 +32,21 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
       minute: '2-digit'
     });
   };
-  
+
   const handleEdit = () => {
     setIsEditing(true);
     setEditText(comment.text);
   };
-  
+
   const handleCancelEdit = () => {
     setIsEditing(false);
   };
-  
-  const handleSaveEdit = () => {
+
+  const handleSaveEdit = async () => {
     if (!editText.trim()) return;
-    
+
     try {
-      commentService.updateComment(comment.id, { text: editText });
+      await commentService.updateComment(comment.id, { text: editText });
       setIsEditing(false);
       onUpdate();
     } catch (error) {
@@ -54,14 +54,14 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
       // In a real app, you would show an error message to the user
     }
   };
-  
+
   const handleDelete = () => {
     setIsDeleting(true);
   };
-  
-  const handleConfirmDelete = () => {
+
+  const handleConfirmDelete = async () => {
     try {
-      commentService.deleteComment(comment.id);
+      await commentService.deleteComment(comment.id);
       onUpdate();
     } catch (error) {
       console.error('Failed to delete comment:', error);
@@ -69,7 +69,7 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
       // In a real app, you would show an error message to the user
     }
   };
-  
+
   const handleCancelDelete = () => {
     setIsDeleting(false);
   };
@@ -102,7 +102,7 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
               <span className="mx-2 text-gray-400">•</span>
               <div className="text-sm text-gray-500">{formatDate(comment.created_at)}</div>
             </div>
-            
+
             {canModify && !isEditing && (
               <div className="flex space-x-2">
                 <button
@@ -120,7 +120,7 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
               </div>
             )}
           </div>
-          
+
           {isEditing ? (
             <div className="mt-2">
               <textarea

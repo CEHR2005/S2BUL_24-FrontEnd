@@ -5,12 +5,13 @@ import { RatingStars } from './RatingStars';
 
 interface RatingFormProps {
   movieId: string;
+  onRatingChange?: () => void;
 }
 
 /**
  * Component for rating a movie
  */
-export const RatingForm = ({ movieId }: RatingFormProps) => {
+export const RatingForm = ({ movieId, onRatingChange }: RatingFormProps) => {
   const [userRating, setUserRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -60,6 +61,11 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
       setMessage('Rating saved successfully');
       setMessageType('success');
 
+      // Notify parent component about the rating change
+      if (onRatingChange) {
+        onRatingChange();
+      }
+
       // Hide success message after 3 seconds
       setTimeout(() => {
         if (messageType === 'success') {
@@ -89,6 +95,11 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
         setUserRating(null);
         setMessage('Rating removed');
         setMessageType('success');
+
+        // Notify parent component about the rating change
+        if (onRatingChange) {
+          onRatingChange();
+        }
 
         // Hide success message after 3 seconds
         setTimeout(() => {

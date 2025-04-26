@@ -6,12 +6,13 @@ import { CommentForm } from './CommentForm';
 
 interface CommentListProps {
   movieId: string;
+  onCommentChange?: () => void;
 }
 
 /**
  * Component for displaying a list of comments for a movie
  */
-export const CommentList = ({ movieId }: CommentListProps) => {
+export const CommentList = ({ movieId, onCommentChange }: CommentListProps) => {
   const [comments, setComments] = useState<CommentWithUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,10 +36,18 @@ export const CommentList = ({ movieId }: CommentListProps) => {
 
   const handleCommentAdded = () => {
     loadComments();
+    // Notify parent component about the comment change
+    if (onCommentChange) {
+      onCommentChange();
+    }
   };
 
   const handleCommentUpdated = () => {
     loadComments();
+    // Notify parent component about the comment change
+    if (onCommentChange) {
+      onCommentChange();
+    }
   };
 
   return (
