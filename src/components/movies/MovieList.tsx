@@ -20,13 +20,21 @@ export const MovieList = ({ onMovieSelect }: MovieListProps) => {
 
   // Load all movies on component mount
   useEffect(() => {
-    const allMovies = movieService.getAllMovies();
-    setMovies(allMovies);
-    setFilteredMovies(allMovies);
+    const fetchMovies = async () => {
+      try {
+        const allMovies = await movieService.getAllMovies();
+        setMovies(allMovies);
+        setFilteredMovies(allMovies);
+      } catch (error) {
+        console.error('Failed to load movies:', error);
+      }
+    };
+
+    fetchMovies();
   }, []);
 
   // Handle search
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
 
@@ -35,8 +43,13 @@ export const MovieList = ({ onMovieSelect }: MovieListProps) => {
       return;
     }
 
-    const results = movieService.searchMovies(query);
-    setFilteredMovies(results);
+    try {
+      const results = await movieService.searchMovies(query);
+      setFilteredMovies(results);
+    } catch (error) {
+      console.error('Failed to search movies:', error);
+      setFilteredMovies([]);
+    }
   };
 
   // Calculate pagination

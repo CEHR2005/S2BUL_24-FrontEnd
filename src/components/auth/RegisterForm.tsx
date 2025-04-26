@@ -25,40 +25,40 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!username.trim()) {
       newErrors.username = 'Username is required';
     }
-    
+
     if (!email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!password.trim()) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const registerData: RegisterUserDto = {
         username,
@@ -70,8 +70,8 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
         gender: gender as any || undefined,
         country: country || undefined
       };
-      
-      userService.register(registerData);
+
+      await userService.register(registerData);
       onSuccess();
     } catch (err) {
       setErrors({
@@ -85,13 +85,13 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
   return (
     <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-      
+
       {errors.submit && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {errors.submit}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit}>
         {/* Required Fields */}
         <div className="mb-4">
@@ -111,7 +111,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             <p className="text-red-500 text-sm mt-1">{errors.username}</p>
           )}
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="email">
             Email*
@@ -129,7 +129,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="password">
             Password*
@@ -147,7 +147,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             <p className="text-red-500 text-sm mt-1">{errors.password}</p>
           )}
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2" htmlFor="confirmPassword">
             Confirm Password*
@@ -165,11 +165,11 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
           )}
         </div>
-        
+
         {/* Optional Fields */}
         <div className="mt-6 mb-4">
           <h3 className="text-lg font-medium mb-2">Profile Information (Optional)</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-gray-700 font-medium mb-2" htmlFor="firstName">
@@ -183,7 +183,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-gray-700 font-medium mb-2" htmlFor="lastName">
                 Last Name
@@ -196,7 +196,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-gray-700 font-medium mb-2" htmlFor="age">
                 Age
@@ -211,7 +211,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-gray-700 font-medium mb-2" htmlFor="gender">
                 Gender
@@ -229,7 +229,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
                 <option value="prefer not to say">Prefer not to say</option>
               </select>
             </div>
-            
+
             <div className="md:col-span-2">
               <label className="block text-gray-700 font-medium mb-2" htmlFor="country">
                 Country
@@ -244,7 +244,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             </div>
           </div>
         </div>
-        
+
         <button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-4"
@@ -253,7 +253,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
           {isLoading ? 'Registering...' : 'Register'}
         </button>
       </form>
-      
+
       <div className="mt-4 text-center">
         <p className="text-gray-600">
           Already have an account?{' '}

@@ -16,42 +16,50 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
   const currentUser = userService.getCurrentUser();
-  
+
   // Load user's existing rating for this movie
   useEffect(() => {
-    if (!currentUser) return;
-    
-    const existingRating = ratingService.getUserRatingForMovie(movieId);
-    if (existingRating) {
-      setUserRating(existingRating.score);
-    }
-  }, [movieId]);
-  
+    const fetchUserRating = async () => {
+      if (!currentUser) return;
+
+      try {
+        const existingRating = await ratingService.getUserRatingForMovie(movieId);
+        if (existingRating) {
+          setUserRating(existingRating.score);
+        }
+      } catch (error) {
+        console.error('Failed to load user rating:', error);
+      }
+    };
+
+    fetchUserRating();
+  }, [movieId, currentUser]);
+
   const handleRatingChange = (rating: number) => {
     setUserRating(rating);
     submitRating(rating);
   };
-  
+
   const submitRating = async (rating: number) => {
     if (!currentUser) {
       setMessage('You must be logged in to rate movies');
       setMessageType('error');
       return;
     }
-    
+
     setIsSubmitting(true);
     setMessage('');
     setMessageType('');
-    
+
     try {
-      ratingService.rateMovie({
+      await ratingService.rateMovie({
         movieId,
         score: rating
       });
-      
+
       setMessage('Rating saved successfully');
       setMessageType('success');
-      
+
       // Hide success message after 3 seconds
       setTimeout(() => {
         if (messageType === 'success') {
@@ -66,22 +74,22 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
       setIsSubmitting(false);
     }
   };
-  
-  const handleRemoveRating = () => {
+
+  const handleRemoveRating = async () => {
     if (!currentUser) return;
-    
+
     setIsSubmitting(true);
     setMessage('');
     setMessageType('');
-    
+
     try {
-      const success = ratingService.deleteRating(movieId);
-      
+      const success = await ratingService.deleteRating(movieId);
+
       if (success) {
         setUserRating(null);
         setMessage('Rating removed');
         setMessageType('success');
-        
+
         // Hide success message after 3 seconds
         setTimeout(() => {
           if (messageType === 'success') {
@@ -100,7 +108,7 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
       setIsSubmitting(false);
     }
   };
-  
+
   if (!currentUser) {
     return (
       <div className="bg-gray-50 p-4 rounded-md text-center">
@@ -121,7 +129,7 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
             onRatingChange={handleRatingChange}
           />
         </div>
-        
+
         {userRating && (
           <button
             type="button"
@@ -133,7 +141,7 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
           </button>
         )}
       </div>
-      
+
       {message && (
         <div className={`mt-2 p-2 rounded text-sm ${
           messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'

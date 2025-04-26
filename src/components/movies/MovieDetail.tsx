@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Movie } from '../../models';
-import { movieService } from '../../services';
-import { ratingService } from '../../services';
+import { Movie, MovieRating } from '../../models';
+import { movieService, ratingService, userService } from '../../services';
 import { CommentList } from '../comments';
 import { RatingForm } from '../ratings';
 import { StatisticsPanel } from '../statistics';
-import { userService } from '../../services';
 
 interface MovieDetailProps {
   movieId: string;
@@ -19,16 +17,41 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'comments' | 'statistics'>('comments');
+  const [rating, setRating] = useState<MovieRating>({ 
+    movieId: movieId, 
+    averageScore: 0, 
+    totalRatings: 0 
+  });
   const isLoggedIn = !!userService.getCurrentUser();
 
   useEffect(() => {
-    const fetchMovie = () => {
-      const foundMovie = movieService.getMovieById(movieId);
-      setMovie(foundMovie || null);
-      setLoading(false);
+    const fetchMovie = async () => {
+      try {
+        const foundMovie = await movieService.getMovieById(movieId);
+        setMovie(foundMovie);
+      } catch (error) {
+        console.error('Failed to load movie:', error);
+        setMovie(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchMovie();
+  }, [movieId]);
+
+  // Fetch movie rating
+  useEffect(() => {
+    const fetchRating = async () => {
+      try {
+        const movieRating = await ratingService.getMovieRating(movieId);
+        setRating(movieRating);
+      } catch (error) {
+        console.error('Failed to load movie rating:', error);
+      }
+    };
+
+    fetchRating();
   }, [movieId]);
 
   if (loading) {
@@ -49,7 +72,7 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
     );
   }
 
-  const { averageScore, totalRatings } = ratingService.getMovieRating(movie.id);
+  const { averageScore, totalRatings } = rating;
 
   return (
     <div>

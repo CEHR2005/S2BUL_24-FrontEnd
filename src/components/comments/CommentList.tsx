@@ -16,10 +16,10 @@ export const CommentList = ({ movieId }: CommentListProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Load comments when the component mounts or when comments are updated
-  const loadComments = () => {
+  const loadComments = async () => {
     setIsLoading(true);
     try {
-      const movieComments = commentService.getCommentsByMovieId(movieId);
+      const movieComments = await commentService.getCommentsByMovieId(movieId);
       setComments(movieComments);
     } catch (error) {
       console.error('Failed to load comments:', error);
@@ -44,9 +44,9 @@ export const CommentList = ({ movieId }: CommentListProps) => {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Comments ({comments.length})</h2>
-      
+
       <CommentForm movieId={movieId} onCommentAdded={handleCommentAdded} />
-      
+
       {isLoading ? (
         <div className="text-center py-4">
           <p className="text-gray-500">Loading comments...</p>

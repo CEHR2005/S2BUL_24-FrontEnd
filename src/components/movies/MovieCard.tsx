@@ -1,4 +1,5 @@
-import { Movie } from '../../models';
+import { useState, useEffect } from 'react';
+import { Movie, MovieRating } from '../../models';
 import { ratingService } from '../../services';
 
 interface MovieCardProps {
@@ -10,8 +11,27 @@ interface MovieCardProps {
  * Card component for displaying a movie in a list
  */
 export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
-  const { averageScore, totalRatings } = ratingService.getMovieRating(movie.id);
-  
+  const [rating, setRating] = useState<MovieRating>({ 
+    movieId: movie.id, 
+    averageScore: 0, 
+    totalRatings: 0 
+  });
+
+  useEffect(() => {
+    const fetchRating = async () => {
+      try {
+        const movieRating = await ratingService.getMovieRating(movie.id);
+        setRating(movieRating);
+      } catch (error) {
+        console.error('Failed to load movie rating:', error);
+      }
+    };
+
+    fetchRating();
+  }, [movie.id]);
+
+  const { averageScore, totalRatings } = rating;
+
   return (
     <div 
       className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
@@ -28,11 +48,11 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
           <span className="text-gray-500">No poster available</span>
         </div>
       )}
-      
+
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-1">{movie.title}</h3>
         <p className="text-sm text-gray-600 mb-2">{movie.releaseYear} • {movie.duration} min</p>
-        
+
         <div className="flex items-center mb-2">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -45,7 +65,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
           <span className="mx-2 text-gray-400">•</span>
           <span className="text-sm text-gray-600">{totalRatings} {totalRatings === 1 ? 'rating' : 'ratings'}</span>
         </div>
-        
+
         <div className="flex flex-wrap gap-1">
           {movie.genre.slice(0, 3).map((genre, index) => (
             <span 

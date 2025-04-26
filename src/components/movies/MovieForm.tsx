@@ -29,20 +29,27 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
 
   // Load movie data if editing an existing movie
   useEffect(() => {
-    if (movieId) {
-      const movie = movieService.getMovieById(movieId);
-      if (movie) {
-        setTitle(movie.title);
-        setReleaseYear(movie.releaseYear);
-        setDirector(movie.director);
-        setCast(movie.cast);
-        setGenre(movie.genre);
-        setPlot(movie.plot);
-        setDuration(movie.duration);
-        setPosterUrl(movie.posterUrl || '');
-        setImages(movie.images || []);
+    const fetchMovie = async () => {
+      if (movieId) {
+        try {
+          const movie = await movieService.getMovieById(movieId);
+          setTitle(movie.title);
+          setReleaseYear(movie.releaseYear);
+          setDirector(movie.director);
+          setCast(movie.cast);
+          setGenre(movie.genre);
+          setPlot(movie.plot);
+          setDuration(movie.duration);
+          setPosterUrl(movie.posterUrl || '');
+          setImages(movie.images || []);
+        } catch (error) {
+          console.error('Failed to load movie:', error);
+          setErrors({ submit: 'Failed to load movie data' });
+        }
       }
-    }
+    };
+
+    fetchMovie();
   }, [movieId]);
 
   const validateForm = (): boolean => {
@@ -76,7 +83,7 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -95,27 +102,27 @@ export const MovieForm = ({ movieId, onSuccess, onSave, onCancel }: MovieFormPro
       images: images.length > 0 ? images : undefined
     };
 
-    let savedMovie: Movie;
+    try {
+      let savedMovie: Movie;
 
-    if (movieId) {
-      // Update existing movie
-      const updatedMovie = movieService.updateMovie(movieId, movieData as UpdateMovieDto);
-      if (!updatedMovie) {
-        setErrors({ submit: 'Failed to update movie' });
-        return;
+      if (movieId) {
+        // Update existing movie
+        savedMovie = await movieService.updateMovie(movieId, movieData as UpdateMovieDto);
+      } else {
+        // Create new movie
+        savedMovie = await movieService.createMovie(movieData);
       }
-      savedMovie = updatedMovie;
-    } else {
-      // Create new movie
-      savedMovie = movieService.createMovie(movieData);
-    }
 
-    if (onSave) {
-      onSave(savedMovie);
-    }
+      if (onSave) {
+        onSave(savedMovie);
+      }
 
-    if (onSuccess) {
-      onSuccess();
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Failed to save movie:', error);
+      setErrors({ submit: 'Failed to save movie' });
     }
   };
 

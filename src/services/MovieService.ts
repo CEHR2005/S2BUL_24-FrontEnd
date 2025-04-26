@@ -1,80 +1,94 @@
 import { Movie, CreateMovieDto, UpdateMovieDto } from '../models';
-import { v4 as uuidv4 } from 'uuid';
+import { apiService } from './ApiService';
 
 /**
  * Service for handling movie-related operations
  */
 export class MovieService {
-  private movies: Movie[] = [];
-
   /**
    * Get all movies
    */
-  public getAllMovies(): Movie[] {
-    return this.movies;
+  public async getAllMovies(): Promise<Movie[]> {
+    try {
+      return await apiService.get<Movie[]>('/movies');
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to get movies');
+    }
   }
 
   /**
    * Get a movie by ID
    */
-  public getMovieById(id: string): Movie | undefined {
-    return this.movies.find(movie => movie.id === id);
+  public async getMovieById(id: string): Promise<Movie> {
+    try {
+      return await apiService.get<Movie>(`/movies/${id}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to get movie');
+    }
   }
 
   /**
    * Create a new movie
    */
-  public createMovie(movieData: CreateMovieDto): Movie {
-    const now = new Date();
-    const newMovie: Movie = {
-      id: uuidv4(),
-      ...movieData,
-      createdAt: now,
-      updatedAt: now
-    };
-
-    this.movies.push(newMovie);
-    return newMovie;
+  public async createMovie(movieData: CreateMovieDto): Promise<Movie> {
+    try {
+      return await apiService.post<Movie>('/movies', movieData);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to create movie');
+    }
   }
 
   /**
    * Update an existing movie
    */
-  public updateMovie(id: string, movieData: UpdateMovieDto): Movie | undefined {
-    const movieIndex = this.movies.findIndex(movie => movie.id === id);
-    if (movieIndex === -1) {
-      return undefined;
+  public async updateMovie(id: string, movieData: UpdateMovieDto): Promise<Movie> {
+    try {
+      return await apiService.put<Movie>(`/movies/${id}`, movieData);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to update movie');
     }
-
-    const updatedMovie: Movie = {
-      ...this.movies[movieIndex],
-      ...movieData,
-      updatedAt: new Date()
-    };
-
-    this.movies[movieIndex] = updatedMovie;
-    return updatedMovie;
   }
 
   /**
    * Delete a movie
    */
-  public deleteMovie(id: string): boolean {
-    const initialLength = this.movies.length;
-    this.movies = this.movies.filter(movie => movie.id !== id);
-    return this.movies.length !== initialLength;
+  public async deleteMovie(id: string): Promise<boolean> {
+    try {
+      await apiService.delete<void>(`/movies/${id}`);
+      return true;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to delete movie');
+    }
   }
 
   /**
    * Search for movies by title, director, or genre
    */
-  public searchMovies(query: string): Movie[] {
-    const lowerCaseQuery = query.toLowerCase();
-    return this.movies.filter(movie => 
-      movie.title.toLowerCase().includes(lowerCaseQuery) ||
-      movie.director.toLowerCase().includes(lowerCaseQuery) ||
-      movie.genre.some(g => g.toLowerCase().includes(lowerCaseQuery))
-    );
+  public async searchMovies(query: string): Promise<Movie[]> {
+    try {
+      // Use the query parameters to search for movies
+      return await apiService.get<Movie[]>(`/movies?title=${encodeURIComponent(query)}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to search movies');
+    }
   }
 }
 

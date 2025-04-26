@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { userService } from '../../services';
 import { SafeUser } from '../../models';
 
@@ -7,6 +7,23 @@ import { SafeUser } from '../../models';
  */
 export const Header = () => {
   const [currentUser, setCurrentUser] = useState<SafeUser | null>(userService.getCurrentUser());
+
+  // Update currentUser when the component mounts and when the session changes
+  useEffect(() => {
+    // Set initial state
+    setCurrentUser(userService.getCurrentUser());
+
+    // Check for session changes every 2 seconds
+    const intervalId = setInterval(() => {
+      const user = userService.getCurrentUser();
+      if (JSON.stringify(user) !== JSON.stringify(currentUser)) {
+        setCurrentUser(user);
+      }
+    }, 2000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [currentUser]);
 
   const handleLogout = () => {
     userService.logout();
@@ -17,7 +34,7 @@ export const Header = () => {
     <header className="bg-gray-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">Movie Database</div>
-        
+
         <nav>
           <ul className="flex space-x-6">
             <li>
@@ -33,11 +50,17 @@ export const Header = () => {
             )}
           </ul>
         </nav>
-        
+
         <div>
           {currentUser ? (
             <div className="flex items-center space-x-4">
               <span>Welcome, {currentUser.username}</span>
+              <a 
+                href="/profile" 
+                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+              >
+                Profile
+              </a>
               <button 
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"

@@ -52,7 +52,7 @@ export const UserProfile = ({ onSuccess }: UserProfileProps) => {
         country: country || undefined
       };
 
-      const updatedUser = userService.updateUser(user.id, updateData);
+      const updatedUser = await userService.updateUser(user.id, updateData);
       if (updatedUser) {
         setUser(updatedUser);
         setSuccess('Profile updated successfully');
