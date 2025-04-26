@@ -53,7 +53,7 @@ export const RatingForm = ({ movieId }: RatingFormProps) => {
 
     try {
       await ratingService.rateMovie({
-        movieId,
+        movie_id: movieId,
         score: rating
       });
 

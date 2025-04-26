@@ -21,17 +21,32 @@ export const UserProfile = ({ onSuccess }: UserProfileProps) => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load user data on component mount
+  // Load user data on component mount and listen for auth state changes
   useEffect(() => {
+    const authStateListener = (currentUser: SafeUser | null) => {
+      if (currentUser) {
+        setUser(currentUser);
+        setFirstName(currentUser.firstName || '');
+        setLastName(currentUser.lastName || '');
+        setAge(currentUser.age);
+        setGender(currentUser.gender || '');
+        setCountry(currentUser.country || '');
+      }
+    };
+
+    // Add listener for auth state changes
+    userService.addAuthStateListener(authStateListener);
+
+    // Also check current user in case it's already loaded
     const currentUser = userService.getCurrentUser();
     if (currentUser) {
-      setUser(currentUser);
-      setFirstName(currentUser.firstName || '');
-      setLastName(currentUser.lastName || '');
-      setAge(currentUser.age);
-      setGender(currentUser.gender || '');
-      setCountry(currentUser.country || '');
+      authStateListener(currentUser);
     }
+
+    // Clean up listener on unmount
+    return () => {
+      userService.removeAuthStateListener(authStateListener);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

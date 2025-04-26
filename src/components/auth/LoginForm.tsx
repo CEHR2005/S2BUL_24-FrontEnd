@@ -34,7 +34,9 @@ export const LoginForm = ({ onSuccess, onLogin, onRegisterClick }: LoginFormProp
         password
       };
 
-      userService.login(loginData);
+      // Await the login process
+      await userService.login(loginData);
+
       if (onLogin) {
         onLogin();
       } else if (onSuccess) {

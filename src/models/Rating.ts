@@ -3,7 +3,7 @@
  */
 export interface Rating {
   id: string;
-  movieId: string;
+  movie_id: string;
   userId: string;
   score: number; // 1-10 rating scale
   createdAt: Date;
@@ -13,13 +13,13 @@ export interface Rating {
 /**
  * Represents the data needed to create or update a rating
  */
-export type CreateRatingDto = Pick<Rating, 'movieId' | 'score'>;
+export type CreateRatingDto = Pick<Rating, 'movie_id' | 'score'>;
 
 /**
  * Represents the average rating for a movie
  */
 export interface MovieRating {
-  movieId: string;
+  movie_id: string;
   averageScore: number;
   totalRatings: number;
 }

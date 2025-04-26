@@ -15,29 +15,29 @@ export const CommentForm = ({ movieId, onCommentAdded }: CommentFormProps) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const currentUser = userService.getCurrentUser();
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!text.trim()) {
       setError('Comment cannot be empty');
       return;
     }
-    
+
     if (!currentUser) {
       setError('You must be logged in to comment');
       return;
     }
-    
+
     setIsSubmitting(true);
     setError('');
-    
+
     try {
       commentService.createComment({
-        movieId,
+        movie_id: movieId,
         text: text.trim()
       });
-      
+
       setText('');
       onCommentAdded();
     } catch (err) {
@@ -46,7 +46,7 @@ export const CommentForm = ({ movieId, onCommentAdded }: CommentFormProps) => {
       setIsSubmitting(false);
     }
   };
-  
+
   if (!currentUser) {
     return (
       <div className="bg-gray-50 p-4 rounded-md text-center">
@@ -58,13 +58,13 @@ export const CommentForm = ({ movieId, onCommentAdded }: CommentFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="mb-6">
       <h3 className="text-lg font-medium mb-2">Add a Comment</h3>
-      
+
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
         </div>
       )}
-      
+
       <div className="mb-4">
         <textarea
           value={text}
@@ -74,7 +74,7 @@ export const CommentForm = ({ movieId, onCommentAdded }: CommentFormProps) => {
           rows={4}
         />
       </div>
-      
+
       <div className="flex justify-end">
         <button
           type="submit"

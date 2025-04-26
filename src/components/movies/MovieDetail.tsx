@@ -18,7 +18,7 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'comments' | 'statistics'>('comments');
   const [rating, setRating] = useState<MovieRating>({ 
-    movieId: movieId, 
+    movie_id: movieId, 
     averageScore: 0, 
     totalRatings: 0 
   });

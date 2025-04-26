@@ -8,26 +8,24 @@ import { SafeUser } from '../../models';
 export const Header = () => {
   const [currentUser, setCurrentUser] = useState<SafeUser | null>(userService.getCurrentUser());
 
-  // Update currentUser when the component mounts and when the session changes
+  // Update currentUser when the component mounts and when the authentication state changes
   useEffect(() => {
-    // Set initial state
-    setCurrentUser(userService.getCurrentUser());
+    // Register callback to be notified of auth state changes
+    const authStateCallback = (user: SafeUser | null) => {
+      setCurrentUser(user);
+    };
 
-    // Check for session changes every 2 seconds
-    const intervalId = setInterval(() => {
-      const user = userService.getCurrentUser();
-      if (JSON.stringify(user) !== JSON.stringify(currentUser)) {
-        setCurrentUser(user);
-      }
-    }, 2000);
+    userService.addAuthStateListener(authStateCallback);
 
-    // Clean up interval on component unmount
-    return () => clearInterval(intervalId);
-  }, [currentUser]);
+    // Clean up on component unmount
+    return () => {
+      userService.removeAuthStateListener(authStateCallback);
+    };
+  }, []); // Empty dependency array - only run on mount and unmount
 
   const handleLogout = () => {
     userService.logout();
-    setCurrentUser(null);
+    // No need to manually update state, the callback will handle it
   };
 
   return (

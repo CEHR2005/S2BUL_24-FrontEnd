@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Navigate, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import {
@@ -10,6 +10,8 @@ import {
   RegisterForm,
   UserProfile,
 } from './components';
+import { userService } from './services';
+import { SafeUser } from './models';
 
 // Movie Detail wrapper component to handle route params
 const MovieDetailWrapper = () => {
@@ -81,8 +83,27 @@ const AppLayout = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  // Listen for authentication state changes
+  useEffect(() => {
+    const authStateListener = (user: SafeUser | null) => {
+      setIsLoggedIn(!!user);
+    };
+
+    // Add listener for auth state changes
+    userService.addAuthStateListener(authStateListener);
+
+    // Also check current user in case it's already loaded
+    const currentUser = userService.getCurrentUser();
+    setIsLoggedIn(!!currentUser);
+
+    // Clean up listener on unmount
+    return () => {
+      userService.removeAuthStateListener(authStateListener);
+    };
+  }, []);
+
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    userService.logout();
     navigate('/');
   };
 
@@ -115,12 +136,7 @@ const AppLayout = () => {
               </button>
             </>
           ) : (
-            <Link 
-              to="/login"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded no-underline"
-            >
-              Login
-            </Link>
+            <></>
           )}
         </div>
       </div>

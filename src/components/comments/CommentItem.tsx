@@ -100,7 +100,7 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
             <div className="flex items-center">
               <div className="font-medium text-blue-600">{comment.user.username}</div>
               <span className="mx-2 text-gray-400">•</span>
-              <div className="text-sm text-gray-500">{formatDate(comment.createdAt)}</div>
+              <div className="text-sm text-gray-500">{formatDate(comment.created_at)}</div>
             </div>
             
             {canModify && !isEditing && (

@@ -3,17 +3,17 @@
  */
 export interface Comment {
   id: string;
-  movieId: string;
+  movie_id: string;
   userId: string;
   text: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 /**
  * Represents the data needed to create a new comment
  */
-export type CreateCommentDto = Pick<Comment, 'movieId' | 'text'>;
+export type CreateCommentDto = Pick<Comment, 'movie_id' | 'text'>;
 
 /**
  * Represents the data needed to update an existing comment

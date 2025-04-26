@@ -12,7 +12,7 @@ interface MovieCardProps {
  */
 export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
   const [rating, setRating] = useState<MovieRating>({ 
-    movieId: movie.id, 
+    movie_id: movie.id, 
     averageScore: 0, 
     totalRatings: 0 
   });

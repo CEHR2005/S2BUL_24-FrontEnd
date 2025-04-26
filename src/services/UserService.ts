@@ -6,10 +6,36 @@ import { apiService } from './ApiService';
  */
 export class UserService {
   private currentUser: SafeUser | null = null;
+  private authStateListeners: Array<(user: SafeUser | null) => void> = [];
 
   constructor() {
     // Check for existing session on initialization
     this.checkForExistingSession();
+  }
+
+  /**
+   * Add a listener for authentication state changes
+   */
+  public addAuthStateListener(callback: (user: SafeUser | null) => void): void {
+    this.authStateListeners.push(callback);
+    // Immediately call with current state
+    callback(this.currentUser);
+  }
+
+  /**
+   * Remove a listener for authentication state changes
+   */
+  public removeAuthStateListener(callback: (user: SafeUser | null) => void): void {
+    this.authStateListeners = this.authStateListeners.filter(cb => cb !== callback);
+  }
+
+  /**
+   * Set the current user and notify listeners
+   */
+  private setCurrentUser(user: SafeUser | null): void {
+    this.currentUser = user;
+    // Notify all listeners
+    this.authStateListeners.forEach(callback => callback(user));
   }
 
   /**
@@ -21,12 +47,12 @@ export class UserService {
       // If there's a token in the cookie, try to get the user profile
       if (apiService.getToken()) {
         const userProfile = await this.getCurrentUserProfile();
-        this.currentUser = userProfile;
+        this.setCurrentUser(userProfile);
       }
     } catch (error) {
       // If there's an error (e.g., token expired), clear the token
       apiService.clearToken();
-      this.currentUser = null;
+      this.setCurrentUser(null);
     }
   }
 
@@ -63,7 +89,7 @@ export class UserService {
 
       // Get the user profile
       const userProfile = await this.getCurrentUserProfile();
-      this.currentUser = userProfile;
+      this.setCurrentUser(userProfile);
 
       return userProfile;
     } catch (error) {
@@ -78,8 +104,8 @@ export class UserService {
    * Logout the current user
    */
   public logout(): void {
-    this.currentUser = null;
     apiService.clearToken();
+    this.setCurrentUser(null);
   }
 
   /**

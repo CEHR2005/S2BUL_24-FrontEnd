@@ -47,7 +47,7 @@ export interface CountryStatistics {
  * Represents all statistics for a movie
  */
 export interface MovieStatistics {
-  movieId: string;
+  movie_id: string;
   averageRating: number;
   totalRatings: number;
   ageStatistics: AgeStatistics;
