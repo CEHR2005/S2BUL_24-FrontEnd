@@ -1,23 +1,29 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MovieStatistics } from '../models';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
+import type { MovieStatistics } from '../models';
 
-// Mock the dependencies
-vi.mock('./ApiService');
-vi.mock('./StatisticsService');
+/* 1. Mocking ONLY ApiService ------------------------------------ */
+vi.mock('./ApiService', () => ({
+  apiService: { get: vi.fn() },
+}));
 
-// Import the mocked dependencies
+/* 2. Importing the mock object */
 import { apiService } from './ApiService';
-import { statisticsService } from './StatisticsService';
 
-// Set up the mocks
-vi.mocked(apiService.get).mockImplementation(vi.fn());
-vi.mocked(statisticsService.getMovieStatistics).mockImplementation(vi.fn());
+/* 3. Late import of StatisticsService after mocks --------------- */
+let statisticsService: typeof import('./StatisticsService')['statisticsService'];
 
+beforeAll(async () => {
+  vi.resetModules();                               // clear modules cache
+  const mod = await vi.importActual<
+      typeof import('./StatisticsService')
+  >('./StatisticsService');
+  statisticsService = mod.statisticsService;       // real singleton
+});
+
+/* ---------------- The tests follow below ------------------------ */
 describe('StatisticsService', () => {
-
-  // Mock data
   const mockMovieId = 'movie1';
-  const mockMovieStatistics: MovieStatistics = {
+  const mockStats: MovieStatistics = {
     movie_id: mockMovieId,
     average_rating: 4.5,
     total_ratings: 10,
@@ -29,12 +35,7 @@ describe('StatisticsService', () => {
       age45to54: 4.5,
       age55plus: 4.2,
     },
-    gender_statistics: {
-      male: 4.2,
-      female: 4.8,
-      other: 4.0,
-      notSpecified: 0,
-    },
+    gender_statistics: { male: 4.2, female: 4.8, other: 4, notSpecified: 0 },
     continent_statistics: {
       africa: 0,
       asia: 0,
@@ -44,44 +45,28 @@ describe('StatisticsService', () => {
       australia: 4.7,
       antarctica: 0,
     },
-    country_statistics: {
-      'USA': 4.4,
-      'UK': 4.6,
-      'Canada': 4.5,
-      'Australia': 4.7,
-    },
+    country_statistics: { USA: 4.4, UK: 4.6, Canada: 4.5, Australia: 4.7 },
   };
 
-  // Reset mocks before each test
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  // Restore mocks after all tests
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.resetAllMocks());
 
   describe('getMovieStatistics', () => {
-    it('should get movie statistics successfully', async () => {
-      // Mock successful call
-      vi.mocked(statisticsService.getMovieStatistics).mockResolvedValueOnce(mockMovieStatistics);
+    it('returns statistics on successful request', async () => {
+      vi.mocked(apiService.get).mockResolvedValueOnce(mockStats);
 
-      // Call the method
       const result = await statisticsService.getMovieStatistics(mockMovieId);
 
-      // Verify method was called with correct parameter
-      expect(statisticsService.getMovieStatistics).toHaveBeenCalledWith(mockMovieId);
-      // Verify result is the mock statistics
-      expect(result).toEqual(mockMovieStatistics);
+      expect(apiService.get).toHaveBeenCalledWith(`/statistics/movie/${mockMovieId}`);
+      expect(result).toEqual(mockStats);
     });
 
-    it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(statisticsService.getMovieStatistics).mockRejectedValueOnce(new Error('Failed to get statistics'));
+    it('throws an error on failed request', async () => {
+      vi.mocked(apiService.get).mockRejectedValueOnce(new Error('Failed to get statistics'));
 
-      // Call the method and expect it to throw
-      await expect(statisticsService.getMovieStatistics(mockMovieId)).rejects.toThrow('Failed to get statistics');
+      await expect(
+          statisticsService.getMovieStatistics(mockMovieId),
+      ).rejects.toThrow('Failed to get statistics');
     });
   });
 });

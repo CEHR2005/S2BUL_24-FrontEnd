@@ -79,12 +79,6 @@ To run the tests, you need to have Node.js and npm installed. Then, you can use 
 ```bash
 # Run tests once
 npm test
-
-# Run tests in watch mode (useful during development)
-npm run test:watch
-
-# Run tests with coverage report
-npm run test:coverage
 ```
 
 The test coverage report will be generated in the `coverage` directory.
@@ -135,6 +129,16 @@ The component takes two props:
 ### LoginForm
 
 The `LoginForm` component renders a form for user login with email and password fields. It handles form validation, submission, and error display. On successful login, it calls either the onLogin or onSuccess callback.
+
+#### Admin Login Credentials
+
+For testing and administrative purposes, you can use the following admin credentials:
+
+```
+username: admin
+email: admin@example.com
+password: admin123
+```
 
 ### RegisterForm
 

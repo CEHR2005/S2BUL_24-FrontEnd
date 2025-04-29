@@ -1,25 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Movie, CreateMovieDto, UpdateMovieDto } from '../models';
 
-// Mock the dependencies
+// Mock only the ApiService dependency
 vi.mock('./ApiService');
-vi.mock('./MovieService');
 
-// Import the mocked modules
+// Import the modules
 import { apiService } from './ApiService';
 import { movieService } from './MovieService';
 
-// Set up the mocks
+// Set up the ApiService mocks
 vi.mocked(apiService.get).mockImplementation(vi.fn());
 vi.mocked(apiService.post).mockImplementation(vi.fn());
 vi.mocked(apiService.put).mockImplementation(vi.fn());
 vi.mocked(apiService.delete).mockImplementation(vi.fn());
-vi.mocked(movieService.getAllMovies).mockImplementation(vi.fn());
-vi.mocked(movieService.getMovieById).mockImplementation(vi.fn());
-vi.mocked(movieService.createMovie).mockImplementation(vi.fn());
-vi.mocked(movieService.updateMovie).mockImplementation(vi.fn());
-vi.mocked(movieService.deleteMovie).mockImplementation(vi.fn());
-vi.mocked(movieService.searchMovies).mockImplementation(vi.fn());
 
 describe('MovieService', () => {
 
@@ -70,21 +63,21 @@ describe('MovieService', () => {
 
   describe('getAllMovies', () => {
     it('should get all movies successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.getAllMovies).mockResolvedValueOnce([mockMovie]);
+      // Mock successful API response
+      vi.mocked(apiService.get).mockResolvedValueOnce([mockMovie]);
 
       // Call the method
       const result = await movieService.getAllMovies();
 
-      // Verify method was called
-      expect(movieService.getAllMovies).toHaveBeenCalled();
+      // Verify API was called with correct endpoint
+      expect(apiService.get).toHaveBeenCalledWith('/movies');
       // Verify result is correct
       expect(result).toEqual([mockMovie]);
     });
 
     it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(movieService.getAllMovies).mockRejectedValueOnce(new Error('Failed to get movies'));
+      // Mock failed API call
+      vi.mocked(apiService.get).mockRejectedValueOnce(new Error('Failed to get movies'));
 
       // Call the method and expect it to throw
       await expect(movieService.getAllMovies()).rejects.toThrow('Failed to get movies');
@@ -93,21 +86,21 @@ describe('MovieService', () => {
 
   describe('getMovieById', () => {
     it('should get a movie by ID successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.getMovieById).mockResolvedValueOnce(mockMovie);
+      // Mock successful API response
+      vi.mocked(apiService.get).mockResolvedValueOnce(mockMovie);
 
       // Call the method
       const result = await movieService.getMovieById(mockMovie.id);
 
-      // Verify method was called with correct ID
-      expect(movieService.getMovieById).toHaveBeenCalledWith(mockMovie.id);
+      // Verify API was called with correct endpoint
+      expect(apiService.get).toHaveBeenCalledWith(`/movies/${mockMovie.id}`);
       // Verify result is correct
       expect(result).toEqual(mockMovie);
     });
 
     it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(movieService.getMovieById).mockRejectedValueOnce(new Error('Movie not found'));
+      // Mock failed API call
+      vi.mocked(apiService.get).mockRejectedValueOnce(new Error('Movie not found'));
 
       // Call the method and expect it to throw
       await expect(movieService.getMovieById(mockMovie.id)).rejects.toThrow('Movie not found');
@@ -116,21 +109,21 @@ describe('MovieService', () => {
 
   describe('createMovie', () => {
     it('should create a movie successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.createMovie).mockResolvedValueOnce(mockMovie);
+      // Mock successful API response
+      vi.mocked(apiService.post).mockResolvedValueOnce(mockMovie);
 
       // Call the method
       const result = await movieService.createMovie(mockCreateMovieDto);
 
-      // Verify method was called with correct data
-      expect(movieService.createMovie).toHaveBeenCalledWith(mockCreateMovieDto);
+      // Verify API was called with correct endpoint and data
+      expect(apiService.post).toHaveBeenCalledWith('/movies', mockCreateMovieDto);
       // Verify result is correct
       expect(result).toEqual(mockMovie);
     });
 
     it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(movieService.createMovie).mockRejectedValueOnce(new Error('Failed to create movie'));
+      // Mock failed API call
+      vi.mocked(apiService.post).mockRejectedValueOnce(new Error('Failed to create movie'));
 
       // Call the method and expect it to throw
       await expect(movieService.createMovie(mockCreateMovieDto)).rejects.toThrow('Failed to create movie');
@@ -139,22 +132,22 @@ describe('MovieService', () => {
 
   describe('updateMovie', () => {
     it('should update a movie successfully', async () => {
-      // Mock successful call
+      // Mock successful API response
       const updatedMovie = { ...mockMovie, title: 'Updated Movie', director: 'Updated Director' };
-      vi.mocked(movieService.updateMovie).mockResolvedValueOnce(updatedMovie);
+      vi.mocked(apiService.put).mockResolvedValueOnce(updatedMovie);
 
       // Call the method
       const result = await movieService.updateMovie(mockMovie.id, mockUpdateMovieDto);
 
-      // Verify method was called with correct data
-      expect(movieService.updateMovie).toHaveBeenCalledWith(mockMovie.id, mockUpdateMovieDto);
+      // Verify API was called with correct endpoint and data
+      expect(apiService.put).toHaveBeenCalledWith(`/movies/${mockMovie.id}`, mockUpdateMovieDto);
       // Verify result is correct
       expect(result).toEqual(updatedMovie);
     });
 
     it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(movieService.updateMovie).mockRejectedValueOnce(new Error('Failed to update movie'));
+      // Mock failed API call
+      vi.mocked(apiService.put).mockRejectedValueOnce(new Error('Failed to update movie'));
 
       // Call the method and expect it to throw
       await expect(movieService.updateMovie(mockMovie.id, mockUpdateMovieDto)).rejects.toThrow('Failed to update movie');
@@ -163,21 +156,21 @@ describe('MovieService', () => {
 
   describe('deleteMovie', () => {
     it('should delete a movie successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.deleteMovie).mockResolvedValueOnce(true);
+      // Mock successful API response
+      vi.mocked(apiService.delete).mockResolvedValueOnce(undefined);
 
       // Call the method
       const result = await movieService.deleteMovie(mockMovie.id);
 
-      // Verify method was called with correct ID
-      expect(movieService.deleteMovie).toHaveBeenCalledWith(mockMovie.id);
+      // Verify API was called with correct endpoint
+      expect(apiService.delete).toHaveBeenCalledWith(`/movies/${mockMovie.id}`);
       // Verify result is true
       expect(result).toBe(true);
     });
 
     it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(movieService.deleteMovie).mockRejectedValueOnce(new Error('Failed to delete movie'));
+      // Mock failed API call
+      vi.mocked(apiService.delete).mockRejectedValueOnce(new Error('Failed to delete movie'));
 
       // Call the method and expect it to throw
       await expect(movieService.deleteMovie(mockMovie.id)).rejects.toThrow('Failed to delete movie');
@@ -186,64 +179,64 @@ describe('MovieService', () => {
 
   describe('searchMovies', () => {
     it('should search movies by title successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+      // Mock successful API response
+      vi.mocked(apiService.get).mockResolvedValueOnce([mockMovie]);
 
       // Call the method with title parameter
       const searchParams = { title: 'Test' };
       const result = await movieService.searchMovies(searchParams);
 
-      // Verify method was called with correct parameters
-      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify API was called with correct endpoint
+      expect(apiService.get).toHaveBeenCalledWith('/movies?title=Test');
       // Verify result is correct
       expect(result).toEqual([mockMovie]);
     });
 
     it('should search movies by director successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+      // Mock successful API response
+      vi.mocked(apiService.get).mockResolvedValueOnce([mockMovie]);
 
       // Call the method with director parameter
       const searchParams = { director: 'Test Director' };
       const result = await movieService.searchMovies(searchParams);
 
-      // Verify method was called with correct parameters
-      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify API was called with correct endpoint
+      expect(apiService.get).toHaveBeenCalledWith('/movies?director=Test%20Director');
       // Verify result is correct
       expect(result).toEqual([mockMovie]);
     });
 
     it('should search movies by genre successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+      // Mock successful API response
+      vi.mocked(apiService.get).mockResolvedValueOnce([mockMovie]);
 
       // Call the method with genre parameter
       const searchParams = { genre: 'Action' };
       const result = await movieService.searchMovies(searchParams);
 
-      // Verify method was called with correct parameters
-      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify API was called with correct endpoint
+      expect(apiService.get).toHaveBeenCalledWith('/movies?genre=Action');
       // Verify result is correct
       expect(result).toEqual([mockMovie]);
     });
 
     it('should search movies with multiple parameters successfully', async () => {
-      // Mock successful call
-      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+      // Mock successful API response
+      vi.mocked(apiService.get).mockResolvedValueOnce([mockMovie]);
 
       // Call the method with multiple parameters
       const searchParams = { title: 'Test', director: 'Test Director', genre: 'Action' };
       const result = await movieService.searchMovies(searchParams);
 
-      // Verify method was called with correct parameters
-      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify API was called with correct endpoint containing all parameters
+      expect(apiService.get).toHaveBeenCalledWith(expect.stringMatching(/^\/movies\?.*title=Test.*&.*director=Test%20Director.*&.*genre=Action.*$/));
       // Verify result is correct
       expect(result).toEqual([mockMovie]);
     });
 
     it('should throw an error when call fails', async () => {
-      // Mock failed call
-      vi.mocked(movieService.searchMovies).mockRejectedValueOnce(new Error('Failed to search movies'));
+      // Mock failed API call
+      vi.mocked(apiService.get).mockRejectedValueOnce(new Error('Failed to search movies'));
 
       // Call the method and expect it to throw
       await expect(movieService.searchMovies({ title: 'Test' })).rejects.toThrow('Failed to search movies');

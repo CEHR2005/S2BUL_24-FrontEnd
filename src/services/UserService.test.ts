@@ -1,335 +1,206 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { RegisterUserDto, LoginUserDto, UpdateUserDto, SafeUser } from '../models';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
+import type {
+  SafeUser,
+  RegisterUserDto,
+  LoginUserDto,
+  UpdateUserDto,
+} from '../models';
 
-// Mock the dependencies
-vi.mock('./ApiService', () => {
-  return {
-    apiService: {
-      getToken: vi.fn(),
-      setToken: vi.fn(),
-      clearToken: vi.fn(),
-      get: vi.fn(),
-      post: vi.fn(),
-      postFormUrlEncoded: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(),
-    }
-  };
-});
+/* ---------- 1. mocking only apiService ---------- */
+vi.mock('./ApiService', () => ({
+  apiService: {
+    getToken: vi.fn(),
+    setToken: vi.fn(),
+    clearToken: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    postFormUrlEncoded: vi.fn(),
+    put: vi.fn(),
+  },
+}));
 
-vi.mock('./UserService', () => {
-  return {
-    userService: {
-      addAuthStateListener: vi.fn(),
-      removeAuthStateListener: vi.fn(),
-      register: vi.fn(),
-      login: vi.fn(),
-      logout: vi.fn(),
-      getCurrentUser: vi.fn(),
-      updateUser: vi.fn(),
-      getUserById: vi.fn(),
-    }
-  };
-});
-
-// Import the modules
+/* ---------- 2. importing the mock ---------- */
 import { apiService } from './ApiService';
-import { userService } from './UserService';
 
+/* ---------- 3. late import of userService ---------- */
+let userService: typeof import('./UserService')['userService'];
+
+beforeAll(async () => {
+  vi.resetModules();
+  const mod = await vi.importActual<typeof import('./UserService')>('./UserService');
+  userService = mod.userService;
+});
+
+/* ---------- 4. tests ---------- */
 describe('UserService', () => {
-
-  // Mock data
-  const mockSafeUser: SafeUser = {
-    id: 'user1',
-    username: 'testuser',
-    email: 'test@example.com',
+  /* --- common fixtures --- */
+  const safeUser: SafeUser = {
+    id: 'u1',
+    username: 'tester',
+    email: 't@test.com',
     is_admin: false,
     created_at: new Date(),
     updated_at: new Date(),
   };
 
-  const mockLoginDto: LoginUserDto = {
-    email: 'test@example.com',
-    password: 'password123',
+  const registerDto: RegisterUserDto = {
+    username: 'tester',
+    email: 't@test.com',
+    password: 'pwd',
+    continent: 'EU',
   };
 
-  const mockRegisterDto: RegisterUserDto = {
-    username: 'testuser',
-    email: 'test@example.com',
-    password: 'password123',
-    continent: 'NA',
-  };
+  const loginDto: LoginUserDto = { email: 't@test.com', password: 'pwd' };
+  const updateDto: UpdateUserDto = { username: 'newName' };
+  const tokenResp = { access_token: 'tok', token_type: 'bearer' };
 
-  const mockUpdateDto: UpdateUserDto = {
-    username: 'updateduser',
-  };
-
-  const mockTokenResponse = {
-    access_token: 'mock_token',
-    token_type: 'bearer',
-  };
-
-  // Variable to store the current user state for tests
-  let currentUser: SafeUser | null = null;
-
-  // Reset mocks before each test
   beforeEach(() => {
     vi.clearAllMocks();
+    userService.logout(); // Reset userService state between tests
+  });
+  afterEach(() => vi.resetAllMocks());
 
-    // Reset current user
-    currentUser = null;
+  /* ---------- addAuthStateListener / removeAuthStateListener ---------- */
+  describe('auth state listeners', () => {
+    it('callback is called immediately and after login', async () => {
+      const cb = vi.fn();
+      userService.addAuthStateListener(cb);        // immediately null
+      expect(cb).toHaveBeenCalledWith(null);
 
-    // Mock userService methods
-    vi.mocked(userService.addAuthStateListener).mockImplementation((callback) => {
-      callback(currentUser);
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      await userService.login(loginDto);
+
+      expect(cb).toHaveBeenLastCalledWith(safeUser);
     });
 
-    vi.mocked(userService.removeAuthStateListener).mockImplementation(() => {
-      // Implementation not needed for the test
-    });
+    it('removeAuthStateListener unsubscribes the callback', async () => {
+      const cb = vi.fn();
+      userService.addAuthStateListener(cb);
+      userService.removeAuthStateListener(cb);
+      cb.mockClear();
 
-    vi.mocked(userService.register).mockImplementation(async (userData) => {
-      return await apiService.post<SafeUser>('/auth/register', userData);
-    });
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      await userService.login(loginDto);
 
-    vi.mocked(userService.login).mockImplementation(async (credentials) => {
-      const formData = {
-        username: credentials.email,
-        password: credentials.password
-      };
-
-      const response = await apiService.postFormUrlEncoded<{ access_token: string, token_type: string }>('/auth/login', formData);
-      apiService.setToken(response.access_token);
-
-      const user = await apiService.get<SafeUser>('/users/me');
-      currentUser = user; // Set the current user
-      return user;
-    });
-
-    vi.mocked(userService.logout).mockImplementation(() => {
-      apiService.clearToken();
-      currentUser = null; // Clear the current user
-    });
-
-    vi.mocked(userService.getCurrentUser).mockImplementation(() => {
-      return currentUser;
-    });
-
-    vi.mocked(userService.updateUser).mockImplementation(async (id, userData) => {
-      if (currentUser && currentUser.id === id) {
-        const updatedUser = await apiService.put<SafeUser>('/users/me', userData);
-        currentUser = updatedUser; // Update the current user
-        return updatedUser;
-      }
-      throw new Error('Can only update the current user');
-    });
-
-    vi.mocked(userService.getUserById).mockImplementation(async (id) => {
-      return await apiService.get<SafeUser>(`/users/${id}`);
+      expect(cb).not.toHaveBeenCalled();
     });
   });
 
-  // Restore mocks after all tests
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
-  // We can't test the constructor directly with the singleton approach
-  // Instead, we'll focus on testing the methods
-
-  describe('addAuthStateListener', () => {
-    it('should add a listener and call it immediately with current user', () => {
-      const callback = vi.fn();
-
-      // Call the method
-      userService.addAuthStateListener(callback);
-
-      // Verify callback was called with current user (null in this case)
-      expect(callback).toHaveBeenCalledWith(null);
-    });
-  });
-
-  describe('removeAuthStateListener', () => {
-    it('should remove a listener', () => {
-      const callback = vi.fn();
-
-      // Add a listener
-      userService.addAuthStateListener(callback);
-
-      // Remove the listener
-      userService.removeAuthStateListener(callback);
-
-      // Reset the callback mock
-      callback.mockReset();
-
-      // Trigger auth state change by logging in
-      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(mockTokenResponse);
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
-
-      // Call login to trigger auth state change
-      userService.login(mockLoginDto);
-
-      // Verify callback was not called after being removed
-      expect(callback).not.toHaveBeenCalled();
-    });
-  });
-
+  /* ---------- register ---------- */
   describe('register', () => {
-    it('should register a new user successfully', async () => {
-      // Mock successful registration
-      vi.mocked(apiService.post).mockResolvedValueOnce(mockSafeUser);
+    it('success', async () => {
+      vi.mocked(apiService.post).mockResolvedValueOnce(safeUser);
+      const res = await userService.register(registerDto);
 
-      // Call the method
-      const result = await userService.register(mockRegisterDto);
-
-      // Verify post was called with correct data
-      expect(apiService.post).toHaveBeenCalledWith('/auth/register', mockRegisterDto);
-      // Verify result is the mock user
-      expect(result).toEqual(mockSafeUser);
+      expect(apiService.post).toHaveBeenCalledWith('/auth/register', registerDto);
+      expect(res).toEqual(safeUser);
     });
 
-    it('should throw an error when registration fails', async () => {
-      // Mock failed registration
-      vi.mocked(apiService.post).mockRejectedValueOnce(new Error('Registration failed'));
-
-      // Call the method and expect it to throw
-      await expect(userService.register(mockRegisterDto)).rejects.toThrow('Registration failed');
+    it('error', async () => {
+      vi.mocked(apiService.post).mockRejectedValueOnce(new Error('fail'));
+      await expect(userService.register(registerDto)).rejects.toThrow('fail');
     });
   });
 
+  /* ---------- login ---------- */
   describe('login', () => {
-    it('should login a user successfully', async () => {
-      // Mock successful login
-      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(mockTokenResponse);
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
+    it('success', async () => {
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
 
-      // Call the method
-      const result = await userService.login(mockLoginDto);
+      const res = await userService.login(loginDto);
 
-      // Verify postFormUrlEncoded was called with correct data
       expect(apiService.postFormUrlEncoded).toHaveBeenCalledWith('/auth/login', {
-        username: mockLoginDto.email,
-        password: mockLoginDto.password,
+        username: loginDto.email,
+        password: loginDto.password,
       });
-      // Verify setToken was called with the token
-      expect(apiService.setToken).toHaveBeenCalledWith(mockTokenResponse.access_token);
-      // Verify get was called to fetch user profile
+      expect(apiService.setToken).toHaveBeenCalledWith(tokenResp.access_token);
       expect(apiService.get).toHaveBeenCalledWith('/users/me');
-      // Verify result is the mock user
-      expect(result).toEqual(mockSafeUser);
+      expect(res).toEqual(safeUser);
     });
 
-    it('should throw an error when login fails', async () => {
-      // Mock failed login
-      vi.mocked(apiService.postFormUrlEncoded).mockRejectedValueOnce(new Error('Invalid credentials'));
-
-      // Call the method and expect it to throw
-      await expect(userService.login(mockLoginDto)).rejects.toThrow('Invalid credentials');
+    it('error', async () => {
+      vi.mocked(apiService.postFormUrlEncoded).mockRejectedValueOnce(new Error('bad'));
+      await expect(userService.login(loginDto)).rejects.toThrow('bad');
     });
   });
 
+  /* ---------- logout ---------- */
   describe('logout', () => {
-    it('should clear token and set current user to null', () => {
-      // Call the method
+    it('clears token and currentUser', () => {
       userService.logout();
-
-      // Verify clearToken was called
       expect(apiService.clearToken).toHaveBeenCalled();
+      expect(userService.getCurrentUser()).toBeNull();
     });
   });
 
+  /* ---------- getCurrentUser ---------- */
   describe('getCurrentUser', () => {
-    it('should return the current user', async () => {
-      // Mock login to set current user
-      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(mockTokenResponse);
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
+    it('returns user after login', async () => {
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      await userService.login(loginDto);
 
-      // Login to set current user
-      await userService.login(mockLoginDto);
-
-      // Call the method
-      const result = userService.getCurrentUser();
-
-      // Verify result is the mock user
-      expect(result).toEqual(mockSafeUser);
+      expect(userService.getCurrentUser()).toEqual(safeUser);
     });
 
-    it('should return null if no user is logged in', () => {
-      // Ensure user is logged out
-      userService.logout();
-
-      // Call the method
-      const result = userService.getCurrentUser();
-
-      // Verify result is null
-      expect(result).toBeNull();
+    it('null without login', () => {
+      expect(userService.getCurrentUser()).toBeNull();
     });
   });
 
+  /* ---------- updateUser ---------- */
   describe('updateUser', () => {
-    it('should update the current user successfully', async () => {
-      // Mock login to set current user
-      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(mockTokenResponse);
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
-      await userService.login(mockLoginDto);
+    it('updates current user', async () => {
+      // login first
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      await userService.login(loginDto);
 
-      // Mock successful update
-      const updatedUser = { ...mockSafeUser, username: 'updateduser' };
-      vi.mocked(apiService.put).mockResolvedValueOnce(updatedUser);
+      const updated = { ...safeUser, username: updateDto.username };
+      vi.mocked(apiService.put).mockResolvedValueOnce(updated);
 
-      // Call the method
-      const result = await userService.updateUser(mockSafeUser.id, mockUpdateDto);
+      const res = await userService.updateUser(safeUser.id, updateDto);
 
-      // Verify put was called with correct data
-      expect(apiService.put).toHaveBeenCalledWith('/users/me', mockUpdateDto);
-      // Verify result is the updated user
-      expect(result).toEqual(updatedUser);
+      expect(apiService.put).toHaveBeenCalledWith('/users/me', updateDto);
+      expect(res).toEqual(updated);
     });
 
-    it('should throw an error when trying to update a different user', async () => {
-      // Mock login to set current user
-      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(mockTokenResponse);
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
-      await userService.login(mockLoginDto);
+    it('error when trying to update another user', async () => {
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      await userService.login(loginDto);
 
-      // Call the method with a different user ID
-      await expect(userService.updateUser('different_user_id', mockUpdateDto)).rejects.toThrow('Can only update the current user');
+      await expect(userService.updateUser('other', updateDto)).rejects.toThrow(
+          'Can only update the current user',
+      );
     });
 
-    it('should throw an error when update fails', async () => {
-      // Mock login to set current user
-      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(mockTokenResponse);
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
-      await userService.login(mockLoginDto);
+    it('put error', async () => {
+      vi.mocked(apiService.postFormUrlEncoded).mockResolvedValueOnce(tokenResp);
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      await userService.login(loginDto);
 
-      // Mock failed update
-      vi.mocked(apiService.put).mockRejectedValueOnce(new Error('Update failed'));
-
-      // Call the method and expect it to throw
-      await expect(userService.updateUser(mockSafeUser.id, mockUpdateDto)).rejects.toThrow('Update failed');
+      vi.mocked(apiService.put).mockRejectedValueOnce(new Error('fail'));
+      await expect(userService.updateUser(safeUser.id, updateDto)).rejects.toThrow('fail');
     });
   });
 
+  /* ---------- getUserById ---------- */
   describe('getUserById', () => {
-    it('should get a user by ID successfully', async () => {
-      // Mock successful get
-      vi.mocked(apiService.get).mockResolvedValueOnce(mockSafeUser);
+    it('success', async () => {
+      vi.mocked(apiService.get).mockResolvedValueOnce(safeUser);
+      const res = await userService.getUserById(safeUser.id);
 
-      // Call the method
-      const result = await userService.getUserById(mockSafeUser.id);
-
-      // Verify get was called with correct endpoint
-      expect(apiService.get).toHaveBeenCalledWith(`/users/${mockSafeUser.id}`);
-      // Verify result is the mock user
-      expect(result).toEqual(mockSafeUser);
+      expect(apiService.get).toHaveBeenCalledWith(`/users/${safeUser.id}`);
+      expect(res).toEqual(safeUser);
     });
 
-    it('should throw an error when get fails', async () => {
-      // Mock failed get
-      vi.mocked(apiService.get).mockRejectedValueOnce(new Error('User not found'));
-
-      // Call the method and expect it to throw
-      await expect(userService.getUserById(mockSafeUser.id)).rejects.toThrow('User not found');
+    it('error', async () => {
+      vi.mocked(apiService.get).mockRejectedValueOnce(new Error('404'));
+      await expect(userService.getUserById('wrong')).rejects.toThrow('404');
     });
   });
 });

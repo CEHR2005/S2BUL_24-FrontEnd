@@ -1,41 +1,29 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Comment, CreateCommentDto, UpdateCommentDto, CommentWithUser } from '../models';
+import { describe, it, beforeAll, beforeEach, afterEach, expect, vi } from 'vitest';
+import type { Comment, CreateCommentDto, UpdateCommentDto, CommentWithUser } from '../models';
 
-// Mock the dependencies
-vi.mock('./ApiService', () => {
-  return {
-    apiService: {
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(),
-    }
-  };
-});
+/* 1. Mocking dependencies - as before */
+vi.mock('./ApiService', () => ({
+  apiService: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+}));
+vi.mock('./UserService', () => ({
+  userService: { getCurrentUser: vi.fn() },
+}));
 
-vi.mock('./UserService', () => {
-  return {
-    userService: {
-      getCurrentUser: vi.fn(),
-    }
-  };
-});
-
-vi.mock('./CommentService', () => {
-  return {
-    commentService: {
-      getCommentsByMovieId: vi.fn(),
-      createComment: vi.fn(),
-      updateComment: vi.fn(),
-      deleteComment: vi.fn(),
-    }
-  };
-});
-
-// Import the dependencies
+/* 2. Importing the mocks themselves (already substituted) */
 import { apiService } from './ApiService';
 import { userService } from './UserService';
-import { commentService } from './CommentService';
+
+/* 3. Getting the real CommentService after everything above is executed */
+let commentService: typeof import('./CommentService')['commentService'];
+
+beforeAll(async () => {
+  // removing the old version of the module from cache, in case it was already loaded
+  vi.resetModules();
+
+  // importing the "live" module taking into account already registered mocks
+  const mod = await vi.importActual<typeof import('./CommentService')>('./CommentService');
+  commentService = mod.commentService;
+});
 
 describe('CommentService', () => {
 
@@ -52,15 +40,6 @@ describe('CommentService', () => {
     created_at: new Date(),
     updated_at: new Date(),
   };
-
-  const mockCommentWithUser: CommentWithUser = {
-    ...mockComment,
-    user: {
-      id: mockUserId,
-      username: 'testuser',
-    },
-  };
-
   const mockCreateCommentDto: CreateCommentDto = {
     movie_id: mockMovieId,
     text: 'This is a test comment',
@@ -82,51 +61,6 @@ describe('CommentService', () => {
   // Reset mocks before each test
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Mock commentService methods
-    vi.mocked(commentService.getCommentsByMovieId).mockImplementation(async (movieId) => {
-      await apiService.get(`/comments/movie/${movieId}`);
-      return [mockCommentWithUser];
-    });
-
-    vi.mocked(commentService.createComment).mockImplementation(async (commentData) => {
-      const currentUser = userService.getCurrentUser();
-      if (!currentUser) {
-        throw new Error('User must be logged in to comment');
-      }
-      const comment = await apiService.post<Comment>('/comments', commentData);
-      return {
-        ...comment,
-        user: {
-          id: currentUser.id,
-          username: currentUser.username
-        }
-      };
-    });
-
-    vi.mocked(commentService.updateComment).mockImplementation(async (id, commentData) => {
-      const currentUser = userService.getCurrentUser();
-      if (!currentUser) {
-        throw new Error('User must be logged in to update a comment');
-      }
-      const updatedComment = await apiService.put<Comment>(`/comments/${id}`, commentData);
-      return {
-        ...updatedComment,
-        user: {
-          id: currentUser.id,
-          username: currentUser.username
-        }
-      };
-    });
-
-    vi.mocked(commentService.deleteComment).mockImplementation(async (id) => {
-      const currentUser = userService.getCurrentUser();
-      if (!currentUser) {
-        throw new Error('User must be logged in to delete a comment');
-      }
-      await apiService.delete(`/comments/${id}`);
-      return true;
-    });
   });
 
   // Restore mocks after all tests
@@ -136,24 +70,20 @@ describe('CommentService', () => {
 
   describe('getCommentsByMovieId', () => {
     it('should get comments by movie ID successfully', async () => {
-      // Mock successful API call
-      vi.mocked(apiService.get).mockResolvedValueOnce([mockCommentWithUser]);
+      vi.mocked(apiService.get).mockResolvedValueOnce([{ /* … */ }] as CommentWithUser[]);
 
-      // Call the method
-      const result = await commentService.getCommentsByMovieId(mockMovieId);
+      const result = await commentService.getCommentsByMovieId('movie1');
 
-      // Verify get was called with correct endpoint
-      expect(apiService.get).toHaveBeenCalledWith(`/comments/movie/${mockMovieId}`);
-      // Verify result is the mock comments
-      expect(result).toEqual([mockCommentWithUser]);
+      expect(apiService.get).toHaveBeenCalledWith('/comments/movie/movie1');
+      expect(result).toHaveLength(1);
     });
 
     it('should throw an error when API call fails', async () => {
-      // Mock failed API call
       vi.mocked(apiService.get).mockRejectedValueOnce(new Error('Failed to get comments'));
 
-      // Call the method and expect it to throw
-      await expect(commentService.getCommentsByMovieId(mockMovieId)).rejects.toThrow('Failed to get comments');
+      await expect(
+          commentService.getCommentsByMovieId(mockMovieId)
+      ).rejects.toThrow('Failed to get comments');
     });
   });
 

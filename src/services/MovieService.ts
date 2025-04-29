@@ -127,25 +127,25 @@ export class MovieService {
   public async searchMovies(params: { title?: string; director?: string; genre?: string; rating?: number }): Promise<Movie[]> {
     try {
       // Build query string from provided parameters
-      const queryParams = new URLSearchParams();
+      const queryParts: string[] = [];
 
       if (params.title) {
-        queryParams.append('title', params.title);
+        queryParts.push(`title=${encodeURIComponent(params.title)}`);
       }
 
       if (params.director) {
-        queryParams.append('director', params.director);
+        queryParts.push(`director=${encodeURIComponent(params.director)}`);
       }
 
       if (params.genre) {
-        queryParams.append('genre', params.genre);
+        queryParts.push(`genre=${encodeURIComponent(params.genre)}`);
       }
 
       if (params.rating !== undefined) {
-        queryParams.append('rating', params.rating.toString());
+        queryParts.push(`rating=${encodeURIComponent(params.rating.toString())}`);
       }
 
-      const queryString = queryParams.toString();
+      const queryString = queryParts.join('&');
       const url = `/movies${queryString ? `?${queryString}` : ''}`;
 
       const response = await apiService.get<ApiMovie[]>(url);
