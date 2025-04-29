@@ -185,16 +185,58 @@ describe('MovieService', () => {
   });
 
   describe('searchMovies', () => {
-    it('should search movies successfully', async () => {
+    it('should search movies by title successfully', async () => {
       // Mock successful call
       vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
 
-      // Call the method
-      const query = 'Test';
-      const result = await movieService.searchMovies(query);
+      // Call the method with title parameter
+      const searchParams = { title: 'Test' };
+      const result = await movieService.searchMovies(searchParams);
 
-      // Verify method was called with correct query
-      expect(movieService.searchMovies).toHaveBeenCalledWith(query);
+      // Verify method was called with correct parameters
+      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify result is correct
+      expect(result).toEqual([mockMovie]);
+    });
+
+    it('should search movies by director successfully', async () => {
+      // Mock successful call
+      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+
+      // Call the method with director parameter
+      const searchParams = { director: 'Test Director' };
+      const result = await movieService.searchMovies(searchParams);
+
+      // Verify method was called with correct parameters
+      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify result is correct
+      expect(result).toEqual([mockMovie]);
+    });
+
+    it('should search movies by genre successfully', async () => {
+      // Mock successful call
+      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+
+      // Call the method with genre parameter
+      const searchParams = { genre: 'Action' };
+      const result = await movieService.searchMovies(searchParams);
+
+      // Verify method was called with correct parameters
+      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
+      // Verify result is correct
+      expect(result).toEqual([mockMovie]);
+    });
+
+    it('should search movies with multiple parameters successfully', async () => {
+      // Mock successful call
+      vi.mocked(movieService.searchMovies).mockResolvedValueOnce([mockMovie]);
+
+      // Call the method with multiple parameters
+      const searchParams = { title: 'Test', director: 'Test Director', genre: 'Action' };
+      const result = await movieService.searchMovies(searchParams);
+
+      // Verify method was called with correct parameters
+      expect(movieService.searchMovies).toHaveBeenCalledWith(searchParams);
       // Verify result is correct
       expect(result).toEqual([mockMovie]);
     });
@@ -204,7 +246,7 @@ describe('MovieService', () => {
       vi.mocked(movieService.searchMovies).mockRejectedValueOnce(new Error('Failed to search movies'));
 
       // Call the method and expect it to throw
-      await expect(movieService.searchMovies('Test')).rejects.toThrow('Failed to search movies');
+      await expect(movieService.searchMovies({ title: 'Test' })).rejects.toThrow('Failed to search movies');
     });
   });
 });

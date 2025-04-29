@@ -65,7 +65,7 @@ describe('CommentItem', () => {
       id: 'user1', // Same as comment.user_id
       username: 'testuser',
       email: 'test@example.com',
-      isAdmin: false,
+      is_admin: false,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -83,7 +83,7 @@ describe('CommentItem', () => {
       id: 'admin1', // Different from comment.user_id
       username: 'admin',
       email: 'admin@example.com',
-      isAdmin: true, // Admin user
+      is_admin: true, // Admin user
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -101,7 +101,7 @@ describe('CommentItem', () => {
       id: 'user1',
       username: 'testuser',
       email: 'test@example.com',
-      isAdmin: false,
+      is_admin: false,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -144,7 +144,7 @@ describe('CommentItem', () => {
       id: 'user1',
       username: 'testuser',
       email: 'test@example.com',
-      isAdmin: false,
+      is_admin: false,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -173,7 +173,7 @@ describe('CommentItem', () => {
       id: 'user1',
       username: 'testuser',
       email: 'test@example.com',
-      isAdmin: false,
+      is_admin: false,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -207,7 +207,7 @@ describe('CommentItem', () => {
       id: 'user1',
       username: 'testuser',
       email: 'test@example.com',
-      isAdmin: false,
+      is_admin: false,
       created_at: new Date(),
       updated_at: new Date(),
     });

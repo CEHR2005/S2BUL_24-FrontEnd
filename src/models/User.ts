@@ -12,7 +12,7 @@ export interface User {
   gender?: 'male' | 'female' | 'other' | 'prefer not to say';
   country?: string;
   continent?: string;
-  isAdmin: boolean;
+  is_admin: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -20,7 +20,7 @@ export interface User {
 /**
  * Represents the data needed to register a new user
  */
-export type RegisterUserDto = Pick<User, 'username' | 'email' | 'password' | 'first_name' | 'last_name' | 'age' | 'gender' | 'country'>;
+export type RegisterUserDto = Pick<User, 'username' | 'email' | 'password' | 'first_name' | 'last_name' | 'age' | 'gender' | 'country' | 'continent'>;
 
 /**
  * Represents the data needed to login a user
@@ -30,7 +30,7 @@ export type LoginUserDto = Pick<User, 'email' | 'password'>;
 /**
  * Represents the data needed to update a user profile
  */
-export type UpdateUserDto = Partial<Omit<User, 'id' | 'email' | 'password' | 'isAdmin' | 'createdAt' | 'updatedAt'>>;
+export type UpdateUserDto = Partial<Omit<User, 'id' | 'email' | 'password' | 'is_admin' | 'createdAt' | 'updatedAt'>>;
 
 /**
  * Represents a user without sensitive information

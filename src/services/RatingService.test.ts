@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Rating, CreateRatingDto, MovieRating, RatingWithUser } from '../models/Rating';
+import { Rating, CreateRatingDto, MovieRating, RatingWithUser } from '../models';
 
 // Mock the dependencies
 vi.mock('./ApiService', () => {
@@ -65,7 +65,7 @@ describe('RatingService', () => {
     id: mockUserId,
     username: 'testuser',
     email: 'test@example.com',
-    isAdmin: false,
+    is_admin: false,
     created_at: new Date(),
     updated_at: new Date(),
   };

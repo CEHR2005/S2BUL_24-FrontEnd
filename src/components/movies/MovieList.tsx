@@ -13,8 +13,13 @@ interface MovieListProps {
  */
 export const MovieList = ({ onMovieSelect }: MovieListProps) => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [filteredMovies,  setFilteredMovies] = useState<Movie[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [searchParams, setSearchParams] = useState<{
+    title?: string;
+    director?: string;
+    genre?: string;
+    rating?: number;
+  }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const moviesPerPage = 12;
 
@@ -34,17 +39,18 @@ export const MovieList = ({ onMovieSelect }: MovieListProps) => {
   }, []);
 
   // Handle search
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
+  const handleSearch = async (params: { title?: string; director?: string; genre?: string; rating?: number }) => {
+    setSearchParams(params);
     setCurrentPage(1);
 
-    if (!query.trim()) {
+    // If no search parameters are provided, show all movies
+    if (!params.title && !params.director && !params.genre && !params.rating) {
       setFilteredMovies(movies);
       return;
     }
 
     try {
-      const results = await movieService.searchMovies(query);
+      const results = await movieService.searchMovies(params);
       setFilteredMovies(results);
     } catch (error) {
       console.error('Failed to search movies:', error);
@@ -79,7 +85,13 @@ export const MovieList = ({ onMovieSelect }: MovieListProps) => {
     <div>
       <h1 className="text-3xl font-bold mb-6">Movies</h1>
 
-      <MovieSearch onSearch={handleSearch} initialQuery={searchQuery} />
+      <MovieSearch 
+        onSearch={handleSearch} 
+        initialTitle={searchParams.title} 
+        initialDirector={searchParams.director} 
+        initialGenre={searchParams.genre}
+        initialRating={searchParams.rating} 
+      />
 
       {filteredMovies.length === 0 ? (
         <div className="text-center py-10">

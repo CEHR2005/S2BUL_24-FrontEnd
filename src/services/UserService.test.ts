@@ -43,7 +43,7 @@ describe('UserService', () => {
     id: 'user1',
     username: 'testuser',
     email: 'test@example.com',
-    isAdmin: false,
+    is_admin: false,
     created_at: new Date(),
     updated_at: new Date(),
   };
@@ -57,6 +57,7 @@ describe('UserService', () => {
     username: 'testuser',
     email: 'test@example.com',
     password: 'password123',
+    continent: 'NA',
   };
 
   const mockUpdateDto: UpdateUserDto = {

@@ -38,14 +38,6 @@ export const Header = () => {
             <li>
               <a href="/" className="hover:text-gray-300">Home</a>
             </li>
-            <li>
-              <a href="/movies" className="hover:text-gray-300">Movies</a>
-            </li>
-            {currentUser && currentUser.isAdmin && (
-              <li>
-                <a href="/admin" className="hover:text-gray-300">Admin</a>
-              </li>
-            )}
           </ul>
         </nav>
 

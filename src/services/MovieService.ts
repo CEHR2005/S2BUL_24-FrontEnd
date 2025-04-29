@@ -2,38 +2,48 @@ import { Movie, CreateMovieDto, UpdateMovieDto } from '../models';
 import { apiService } from './ApiService';
 
 /**
+ * Interface representing a movie as returned from the API (snake_case format)
+ */
+interface ApiMovie {
+  id: string;
+  title: string;
+  release_year: number;
+  director: string;
+  cast: string[];
+  genre: string[];
+  plot: string;
+  duration: number;
+  poster_url?: string;
+  images?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
  * Service for handling movie-related operations
  */
 export class MovieService {
   /**
    * Transform movie data from API format to frontend format
    */
-  private transformMovieFromApi(apiMovie: any): Movie {
-    // Convert from snake_case to camelCase for releaseYear
-    const { release_year, ...rest } = apiMovie;
-    return {
-      ...rest,
-      releaseYear: release_year,
-    };
+  private transformMovieFromApi(apiMovie: ApiMovie): Movie {
+    // No need to convert between naming conventions
+    return apiMovie;
   }
 
   /**
    * Transform movie data from frontend format to API format
    */
-  private transformMovieToApi(movie: Partial<Movie>): any {
-    // Convert from camelCase to snake_case for releaseYear
-    const { release_year, ...rest } = movie;
-    return {
-      ...rest,
-      release_year: release_year,
-    };
+  private transformMovieToApi(movie: Partial<Movie>): Partial<ApiMovie> {
+    // No need to convert between naming conventions
+    return movie;
   }
   /**
    * Get all movies
    */
   public async getAllMovies(): Promise<Movie[]> {
     try {
-      const response = await apiService.get<any[]>('/movies');
+      const response = await apiService.get<ApiMovie[]>('/movies');
       // Transform response to match frontend model
       return response.map(movie => this.transformMovieFromApi(movie));
     } catch (error) {
@@ -49,7 +59,7 @@ export class MovieService {
    */
   public async getMovieById(id: string): Promise<Movie> {
     try {
-      const response = await apiService.get<any>(`/movies/${id}`);
+      const response = await apiService.get<ApiMovie>(`/movies/${id}`);
       // Transform response to match frontend model
       return this.transformMovieFromApi(response);
     } catch (error) {
@@ -67,7 +77,7 @@ export class MovieService {
     try {
       // Transform movie data to match API expectations
       const apiMovieData = this.transformMovieToApi(movieData);
-      const response = await apiService.post<any>('/movies', apiMovieData);
+      const response = await apiService.post<ApiMovie>('/movies', apiMovieData);
       // Transform response to match frontend model
       return this.transformMovieFromApi(response);
     } catch (error) {
@@ -85,7 +95,7 @@ export class MovieService {
     try {
       // Transform movie data to match API expectations
       const apiMovieData = this.transformMovieToApi(movieData);
-      const response = await apiService.put<any>(`/movies/${id}`, apiMovieData);
+      const response = await apiService.put<ApiMovie>(`/movies/${id}`, apiMovieData);
       // Transform response to match frontend model
       return this.transformMovieFromApi(response);
     } catch (error) {
@@ -112,12 +122,33 @@ export class MovieService {
   }
 
   /**
-   * Search for movies by title, director, or genre
+   * Search for movies by title, director, genre, or rating
    */
-  public async searchMovies(query: string): Promise<Movie[]> {
+  public async searchMovies(params: { title?: string; director?: string; genre?: string; rating?: number }): Promise<Movie[]> {
     try {
-      // Use the query parameters to search for movies
-      const response = await apiService.get<any[]>(`/movies?title=${encodeURIComponent(query)}`);
+      // Build query string from provided parameters
+      const queryParams = new URLSearchParams();
+
+      if (params.title) {
+        queryParams.append('title', params.title);
+      }
+
+      if (params.director) {
+        queryParams.append('director', params.director);
+      }
+
+      if (params.genre) {
+        queryParams.append('genre', params.genre);
+      }
+
+      if (params.rating !== undefined) {
+        queryParams.append('rating', params.rating.toString());
+      }
+
+      const queryString = queryParams.toString();
+      const url = `/movies${queryString ? `?${queryString}` : ''}`;
+
+      const response = await apiService.get<ApiMovie[]>(url);
       // Transform response to match frontend model
       return response.map(movie => this.transformMovieFromApi(movie));
     } catch (error) {

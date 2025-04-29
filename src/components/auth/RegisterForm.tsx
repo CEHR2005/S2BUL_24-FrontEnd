@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { userService } from '../../services';
 import { RegisterUserDto } from '../../models';
+import { countries, TCountryCode } from 'countries-list';
 
 /**
  * Props for the RegisterForm component
@@ -46,9 +47,38 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
   const [lastName, setLastName] = useState('');
   const [age, setAge] = useState<number | undefined>(undefined);
   const [gender, setGender] = useState<string>('');
-  const [country, setCountry] = useState('');
+  const [countryCode, setCountryCode] = useState<TCountryCode | ''>('');
+  const [continent, setContinent] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * Gets the continent based on the country code
+   * 
+   * @param {TCountryCode | string} code - The country code
+   * @returns {string | undefined} The continent code or undefined if not found
+   */
+  const getContinentFromCountryCode = (code: TCountryCode | string): string | undefined => {
+    if (!code) return undefined;
+
+    // Check if the code is a valid country code
+    if (Object.prototype.hasOwnProperty.call(countries, code)) {
+      return countries[code as TCountryCode].continent;
+    }
+
+    return undefined;
+  };
+
+  // Update continent when country code changes
+  useEffect(() => {
+    if (countryCode) {
+      const detectedContinent = getContinentFromCountryCode(countryCode);
+      setContinent(detectedContinent);
+      console.log(detectedContinent);
+    } else {
+      setContinent(undefined);
+    }
+  }, [countryCode]);
 
   /**
    * Validates the form inputs
@@ -112,6 +142,18 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
     setIsLoading(true);
 
     try {
+      // Get country name from country code
+      let countryName: string | undefined = undefined;
+      if (countryCode && Object.prototype.hasOwnProperty.call(countries, countryCode)) {
+        countryName = countries[countryCode as TCountryCode].name;
+      }
+
+      // Ensure continent is set if country code is provided
+      let currentContinent = continent;
+      if (countryCode && !currentContinent) {
+        currentContinent = getContinentFromCountryCode(countryCode);
+      }
+
       // Prepare registration data
       const registerData: RegisterUserDto = {
         username,
@@ -120,8 +162,9 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
         first_name: firstName || undefined,
         last_name: lastName || undefined,
         age: age || undefined,
-        gender: gender as any || undefined,
-        country: country || undefined
+        gender: gender as 'male' | 'female' | 'other' | 'prefer not to say' || undefined,
+        country: countryName || undefined,
+        continent: currentContinent || undefined
       };
 
       // Attempt to register
@@ -290,13 +333,19 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
               <label className="block text-gray-700 font-medium mb-2" htmlFor="country">
                 Country
               </label>
-              <input
-                type="text"
+              <select
                 id="country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value as TCountryCode | '')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">Select country</option>
+                {Object.entries(countries).map(([code, data]) => (
+                  <option key={code} value={code}>
+                    {data.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>

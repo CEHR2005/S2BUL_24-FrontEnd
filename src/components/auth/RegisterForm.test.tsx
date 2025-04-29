@@ -172,7 +172,7 @@ describe('RegisterForm', () => {
       id: 'user1',
       username: 'testuser',
       email: 'test@example.com',
-      isAdmin: false,
+      is_admin: false,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -211,8 +211,9 @@ describe('RegisterForm', () => {
     fireEvent.change(screen.getByLabelText(/gender/i), {
       target: { value: 'male' },
     });
+    // Select a country from the dropdown (US for United States)
     fireEvent.change(screen.getByLabelText(/country/i), {
-      target: { value: 'USA' },
+      target: { value: 'US' },
     });
 
     // Submit the form
@@ -229,7 +230,8 @@ describe('RegisterForm', () => {
         last_name: 'Doe',
         age: 30,
         gender: 'male',
-        country: 'USA',
+        country: 'United States',
+        continent: 'NA', // North America
       });
 
       // Verify that onSuccess callback was called

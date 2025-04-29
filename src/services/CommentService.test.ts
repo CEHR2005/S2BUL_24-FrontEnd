@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Comment, CreateCommentDto, UpdateCommentDto, CommentWithUser } from '../models/Comment';
+import { Comment, CreateCommentDto, UpdateCommentDto, CommentWithUser } from '../models';
 
 // Mock the dependencies
 vi.mock('./ApiService', () => {
@@ -74,7 +74,7 @@ describe('CommentService', () => {
     id: mockUserId,
     username: 'testuser',
     email: 'test@example.com',
-    isAdmin: false,
+    is_admin: false,
     created_at: new Date(),
     updated_at: new Date(),
   };

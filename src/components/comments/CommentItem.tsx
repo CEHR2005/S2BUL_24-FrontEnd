@@ -54,7 +54,7 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
   // Check if the current user is the author or an admin
   const canModify = currentUser && (
     currentUser.id === comment.user_id ||
-    currentUser.isAdmin
+    currentUser.is_admin
   );
 
   /**

@@ -25,7 +25,7 @@ describe('CommentForm', () => {
     id: 'user1',
     username: 'testuser',
     email: 'test@example.com',
-    isAdmin: false,
+    is_admin: false,
     created_at: new Date(),
     updated_at: new Date(),
   };
