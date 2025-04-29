@@ -13,7 +13,7 @@ interface MovieListProps {
  */
 export const MovieList = ({ onMovieSelect }: MovieListProps) => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [filteredMovies,  setFilteredMovies] = useState<Movie[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const moviesPerPage = 12;

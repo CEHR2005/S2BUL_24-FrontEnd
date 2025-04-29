@@ -16,6 +16,7 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
     average_score: 0,
     total_ratings: 0
   });
+  const [posterError, setPosterError] = useState(false);
 
   useEffect(() => {
     const fetchRating = async () => {
@@ -37,11 +38,12 @@ export const MovieCard = ({ movie, onClick }: MovieCardProps) => {
       className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
-      {movie.poster_url ? (
+      {movie.poster_url && !posterError ? (
         <img 
           src={movie.poster_url}
           alt={`${movie.title} poster`} 
           className="w-full h-48 object-cover"
+          onError={() => setPosterError(true)}
         />
       ) : (
         <div className="w-full h-48 bg-gray-300 flex items-center justify-center">

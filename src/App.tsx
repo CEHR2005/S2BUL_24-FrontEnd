@@ -11,7 +11,7 @@ import {
   UserProfile,
 } from './components';
 import { userService } from './services';
-import { SafeUser } from './models';
+
 
 // Movie Detail wrapper component to handle route params
 const MovieDetailWrapper = () => {
@@ -80,32 +80,25 @@ const HomeWrapper = () => {
 
 // App Layout component
 const AppLayout = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
 
-  // Listen for authentication state changes
+  // Update currentUser when the component mounts and when the authentication state changes
   useEffect(() => {
-    const authStateListener = (user: SafeUser | null) => {
-      setIsLoggedIn(!!user);
+    // Set initial user state
+    setCurrentUser(userService.getCurrentUser());
+
+    // Register callback to be notified of auth state changes
+    const authStateCallback = (user: any | null) => {
+      setCurrentUser(user);
     };
 
-    // Add listener for auth state changes
-    userService.addAuthStateListener(authStateListener);
+    userService.addAuthStateListener(authStateCallback);
 
-    // Also check current user in case it's already loaded
-    const currentUser = userService.getCurrentUser();
-    setIsLoggedIn(!!currentUser);
-
-    // Clean up listener on unmount
+    // Clean up on component unmount
     return () => {
-      userService.removeAuthStateListener(authStateListener);
+      userService.removeAuthStateListener(authStateCallback);
     };
-  }, []);
-
-  const handleLogout = () => {
-    userService.logout();
-    navigate('/');
-  };
+  }, []); // Empty dependency array - only run on mount and unmount
 
   return (
     <MainLayout>
@@ -114,29 +107,13 @@ const AppLayout = () => {
           <Link to="/" className="text-black no-underline">Movie Database</Link>
         </h1>
         <div className="space-x-2">
-          {isLoggedIn ? (
-            <>
-              <Link 
+          {currentUser && (
+            <Link
                 to="/movies/add"
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded no-underline"
-              >
-                Add Movie
-              </Link>
-              <Link 
-                to="/profile"
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded no-underline"
-              >
-                Profile
-              </Link>
-              <button 
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <></>
+            >
+              Add Movie
+            </Link>
           )}
         </div>
       </div>

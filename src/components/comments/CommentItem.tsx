@@ -3,13 +3,47 @@ import { CommentWithUser } from '../../models';
 import { commentService } from '../../services';
 import { userService } from '../../services';
 
+/**
+ * Props for the CommentItem component
+ * @interface CommentItemProps
+ * @property {CommentWithUser} comment - The comment to display, including user information
+ * @property {Function} onUpdate - Callback function to be called when the comment is updated or deleted
+ */
 interface CommentItemProps {
   comment: CommentWithUser;
   onUpdate: () => void;
 }
 
 /**
- * Component for displaying a single comment
+ * Component for displaying a single comment with edit and delete functionality
+ * 
+ * This component renders a comment with the author's username, creation date, and text.
+ * If the current user is the author of the comment or an admin, edit and delete buttons are displayed.
+ * The component handles the UI state for editing and deleting comments, and calls the appropriate
+ * service methods to perform these operations.
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * const comment = {
+ *   id: '1',
+ *   movie_id: 'movie1',
+ *   user_id: 'user1',
+ *   text: 'Great movie!',
+ *   created_at: new Date(),
+ *   updated_at: new Date(),
+ *   user: {
+ *     id: 'user1',
+ *     username: 'johndoe'
+ *   }
+ * };
+ * 
+ * const handleUpdate = () => {
+ *   // Refresh comments or update UI
+ * };
+ * 
+ * <CommentItem comment={comment} onUpdate={handleUpdate} />
+ * ```
  */
 export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +57,11 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
     currentUser.isAdmin
   );
 
+  /**
+   * Formats a date for display
+   * @param {Date} date - The date to format
+   * @returns {string} The formatted date string
+   */
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -33,15 +72,28 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
     });
   };
 
+  /**
+   * Handles clicking the edit button
+   * Sets the component to editing mode and initializes the edit text with the current comment text
+   */
   const handleEdit = () => {
     setIsEditing(true);
     setEditText(comment.text);
   };
 
+  /**
+   * Handles canceling the edit operation
+   * Exits editing mode without saving changes
+   */
   const handleCancelEdit = () => {
     setIsEditing(false);
   };
 
+  /**
+   * Handles saving the edited comment
+   * Calls the commentService to update the comment in the backend
+   * @async
+   */
   const handleSaveEdit = async () => {
     if (!editText.trim()) return;
 
@@ -55,10 +107,19 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
     }
   };
 
+  /**
+   * Handles clicking the delete button
+   * Sets the component to deleting mode, showing a confirmation dialog
+   */
   const handleDelete = () => {
     setIsDeleting(true);
   };
 
+  /**
+   * Handles confirming the delete operation
+   * Calls the commentService to delete the comment from the backend
+   * @async
+   */
   const handleConfirmDelete = async () => {
     try {
       await commentService.deleteComment(comment.id);
@@ -70,6 +131,10 @@ export const CommentItem = ({ comment, onUpdate }: CommentItemProps) => {
     }
   };
 
+  /**
+   * Handles canceling the delete operation
+   * Exits deleting mode without deleting the comment
+   */
   const handleCancelDelete = () => {
     setIsDeleting(false);
   };

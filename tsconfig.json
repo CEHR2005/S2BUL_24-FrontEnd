@@ -7,5 +7,8 @@
   "compilerOptions": {
     "strict": false,
     "noImplicitAny": false,
+    "types": [
+      "vitest/globals"
+    ]
   }
 }

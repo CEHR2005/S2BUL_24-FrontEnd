@@ -17,6 +17,7 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'comments' | 'statistics'>('comments');
+  const [posterError, setPosterError] = useState(false);
   const [rating, setRating] = useState<MovieRating>({ 
     movie_id: movieId, 
     average_score: 0,
@@ -98,11 +99,12 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
         <div className="md:flex">
           {/* Movie Poster */}
           <div className="md:w-1/3">
-            {movie.poster_url ? (
+            {movie.poster_url && !posterError ? (
               <img 
                 src={movie.poster_url}
                 alt={`${movie.title} poster`} 
                 className="w-full h-auto object-cover"
+                onError={() => setPosterError(true)}
               />
             ) : (
               <div className="w-full h-64 bg-gray-300 flex items-center justify-center">
@@ -214,6 +216,10 @@ export const MovieDetail = ({ movieId, onBack }: MovieDetailProps) => {
                 src={image}
                 alt={`${movie.title} image ${index + 1}`}
                 className="w-full h-40 object-cover rounded-lg shadow-md hover:opacity-90 transition-opacity cursor-pointer"
+                onError={(e) => {
+                  // Hide the image if it fails to load
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ))}
           </div>

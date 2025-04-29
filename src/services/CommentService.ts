@@ -5,7 +5,7 @@ import { userService } from './UserService';
 /**
  * Service for handling comment-related operations
  */
-export class CommentService {
+class CommentService {
   /**
    * Get all comments for a movie
    */

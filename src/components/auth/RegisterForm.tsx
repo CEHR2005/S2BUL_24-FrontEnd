@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { userService } from '../../services';
 import { RegisterUserDto } from '../../models';
 
+/**
+ * Props for the RegisterForm component
+ * @interface RegisterFormProps
+ * @property {Function} onSuccess - Callback function to be called on successful registration
+ * @property {Function} onLoginClick - Callback function to be called when the login button is clicked
+ */
 interface RegisterFormProps {
   onSuccess: () => void;
   onLoginClick: () => void;
@@ -9,6 +15,27 @@ interface RegisterFormProps {
 
 /**
  * Component for user registration
+ * 
+ * This component renders a form for user registration with required fields (username, email, password)
+ * and optional fields (first name, last name, age, gender, country).
+ * It handles form validation, submission, and error display.
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * const handleRegistrationSuccess = () => {
+ *   // Handle successful registration
+ * };
+ * 
+ * const handleLoginClick = () => {
+ *   // Switch to login form
+ * };
+ * 
+ * <RegisterForm 
+ *   onSuccess={handleRegistrationSuccess}
+ *   onLoginClick={handleLoginClick}
+ * />
+ * ```
  */
 export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => {
   const [username, setUsername] = useState('');
@@ -23,43 +50,69 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Validates the form inputs
+   * 
+   * Checks if required fields are filled, email format is valid,
+   * password meets minimum length requirements, and passwords match.
+   * Sets error messages for invalid fields.
+   * 
+   * @returns {boolean} True if the form is valid, false otherwise
+   */
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Validate username
     if (!username.trim()) {
       newErrors.username = 'Username is required';
     }
 
+    // Validate email
     if (!email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
 
+    // Validate password
     if (!password.trim()) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
+    // Validate password confirmation
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    // Set errors and return validation result
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Handles form submission for registration
+   * 
+   * This function validates the form inputs, calls the registration service,
+   * and handles success and error cases.
+   * 
+   * @param {React.FormEvent} e - The form event
+   * @async
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate form before submission
     if (!validateForm()) {
       return;
     }
 
+    // Set loading state
     setIsLoading(true);
 
     try {
+      // Prepare registration data
       const registerData: RegisterUserDto = {
         username,
         email,
@@ -71,13 +124,16 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
         country: country || undefined
       };
 
+      // Attempt to register
       await userService.register(registerData);
       onSuccess();
     } catch (err) {
+      // Handle registration errors
       setErrors({
         submit: err instanceof Error ? err.message : 'Registration failed'
       });
     } finally {
+      // Reset loading state
       setIsLoading(false);
     }
   };
@@ -117,7 +173,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             Email*
           </label>
           <input
-            type="email"
+            type="text"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -126,7 +182,7 @@ export const RegisterForm = ({ onSuccess, onLoginClick }: RegisterFormProps) => 
             }`}
           />
           {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            <p className="text-red-500 text-sm mt-1" data-testid="email-error" role="alert">{errors.email}</p>
           )}
         </div>
 
